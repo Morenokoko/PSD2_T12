@@ -22,10 +22,12 @@ import com.example.ecoranger.ui.theme.OnlyNotesTheme
 import androidx.compose.runtime.remember
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
+import com.google.android.libraries.places.api.Places
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             OnlyNotesTheme {
                 Surface(

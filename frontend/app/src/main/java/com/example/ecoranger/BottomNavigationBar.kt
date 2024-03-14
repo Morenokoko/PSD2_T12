@@ -1,10 +1,14 @@
 package com.example.ecoranger
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -23,17 +27,17 @@ import androidx.navigation.NavHostController
 fun BottomNavigationBar(navController: NavHostController, selectedItem: MutableState<Int> = mutableIntStateOf(0)) {
 
     var selectedItem by remember { selectedItem }
-    val items = listOf("Home", "Groups", "Notes", "Activity", "Settings")
+    val items = listOf("Home", "Bins", "Recycle", "Community", "Profile")
     NavigationBar {
         items.forEachIndexed { index, item ->
             NavigationBarItem(
                 icon = {
                     when (index) {
                         0 -> Icon(Icons.Filled.Home, contentDescription = "Home")
-                        1 -> Icon(Icons.Filled.Favorite, contentDescription = "Bins")
-                        2 -> Icon(Icons.Filled.List, contentDescription = "Recycle")
-                        3 -> Icon(Icons.Filled.Notifications, contentDescription = "Community")
-                        4 -> Icon(Icons.Filled.Settings, contentDescription = "Profile")
+                        1 -> Icon(Icons.Filled.LocationOn, contentDescription = "Bins")
+                        2 -> Icon(Icons.Filled.Add, contentDescription = "Recycle")
+                        3 -> Icon(Icons.Filled.Favorite, contentDescription = "Community")
+                        4 -> Icon(Icons.Filled.Person, contentDescription = "Profile")
                         else -> Icon(Icons.Filled.Home, contentDescription = "Home")
                     }
                 },

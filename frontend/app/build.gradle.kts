@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
 android {
@@ -38,6 +39,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true // Add to ensure build.gradle.kts (EcoRanger) will run the buildscript
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -68,4 +70,9 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+    implementation ("com.google.android.libraries.places:places:2.6.0")
+    implementation ("com.google.maps.android:places-ktx:2.0.0")
+    implementation ("com.google.android.gms:play-services-maps:17.0.0")
+    implementation ("com.google.maps.android:maps-compose:4.3.3")
+    implementation ("com.google.maps.android:android-maps-utils:0.5")
 }
