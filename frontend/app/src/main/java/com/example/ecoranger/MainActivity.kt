@@ -1,5 +1,7 @@
 package com.example.ecoranger
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -30,7 +32,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MyApp()
+                    MyApp(this)
                 }
             }
         }
@@ -38,19 +40,35 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MyApp() {
+fun MyApp(activity: MainActivity) {
     val navController = rememberNavController()
     val selectedItem = remember { mutableIntStateOf(0) }
+    val context = activity.applicationContext
+    val sharedPreferences: SharedPreferences = activity.getSharedPreferences("loginPrefs", Context.MODE_PRIVATE)
+    val isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false)
 
-    NavHost(navController, startDestination = "mainPage") {
-        composable("mainPage") { MainPage(navController) }
-        composable("loginPage") { LoginPage(navController) }
-        composable("signUpPage") { SignUpPage(navController) }
-        composable("page0") { HomePage(navController, selectedItem) }
-        composable("page1") { GroupsPage(navController, selectedItem) }
-        composable("page2") { NotesPage(navController, selectedItem) }
-        composable("page3") { ActivityPage(navController, selectedItem) }
-        composable("page4") { SettingsPage(navController, selectedItem) }
+    if (isLoggedIn) {
+        NavHost(navController, startDestination = "page0") {
+            composable("mainPage") { MainPage(navController) }
+            composable("loginPage") { LoginPage(navController, context) }
+            composable("signUpPage") { SignUpPage(navController) }
+            composable("page0") { HomePage(navController, selectedItem) }
+            composable("page1") { GroupsPage(navController, selectedItem) }
+            composable("page2") { NotesPage(navController, selectedItem) }
+            composable("page3") { ActivityPage(navController, selectedItem) }
+            composable("page4") { SettingsPage(navController, selectedItem) }
+        }
+    } else {
+        NavHost(navController, startDestination = "mainPage") {
+            composable("mainPage") { MainPage(navController) }
+            composable("loginPage") { LoginPage(navController, context) }
+            composable("signUpPage") { SignUpPage(navController) }
+            composable("page0") { HomePage(navController, selectedItem) }
+            composable("page1") { GroupsPage(navController, selectedItem) }
+            composable("page2") { NotesPage(navController, selectedItem) }
+            composable("page3") { ActivityPage(navController, selectedItem) }
+            composable("page4") { SettingsPage(navController, selectedItem) }
+        }
     }
 }
 

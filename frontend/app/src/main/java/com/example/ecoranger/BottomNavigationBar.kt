@@ -30,10 +30,10 @@ fun BottomNavigationBar(navController: NavHostController, selectedItem: MutableS
                 icon = {
                     when (index) {
                         0 -> Icon(Icons.Filled.Home, contentDescription = "Home")
-                        1 -> Icon(Icons.Filled.Favorite, contentDescription = "Groups")
-                        2 -> Icon(Icons.Filled.List, contentDescription = "Notes")
-                        3 -> Icon(Icons.Filled.Notifications, contentDescription = "Activity")
-                        4 -> Icon(Icons.Filled.Settings, contentDescription = "Settings")
+                        1 -> Icon(Icons.Filled.Favorite, contentDescription = "Bins")
+                        2 -> Icon(Icons.Filled.List, contentDescription = "Recycle")
+                        3 -> Icon(Icons.Filled.Notifications, contentDescription = "Community")
+                        4 -> Icon(Icons.Filled.Settings, contentDescription = "Profile")
                         else -> Icon(Icons.Filled.Home, contentDescription = "Home")
                     }
                 },

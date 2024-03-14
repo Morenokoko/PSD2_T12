@@ -1,6 +1,8 @@
 package com.example.ecoranger
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.SharedPreferences
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -28,11 +30,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 
+fun setLoggedIn(context: Context, isLoggedIn: Boolean) {
+    val sharedPreferences: SharedPreferences =
+        context.getSharedPreferences("loginPrefs", Context.MODE_PRIVATE)
+    val editor: SharedPreferences.Editor = sharedPreferences.edit()
+    editor.putBoolean("isLoggedIn", isLoggedIn)
+    editor.apply()
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun LoginPage(navController: NavHostController) {
+fun LoginPage(navController: NavHostController, context: Context) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -70,7 +79,10 @@ fun LoginPage(navController: NavHostController) {
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
-                    onClick = { navController.navigate("page0") },
+                    onClick = {
+                        setLoggedIn(context, true) // Set login status to true
+                        navController.navigate("page0")
+                    },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Login")
