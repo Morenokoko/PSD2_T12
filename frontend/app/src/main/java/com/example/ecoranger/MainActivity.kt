@@ -77,6 +77,7 @@ fun MyApp(activity: MainActivity) {
         composable("page2") { CameraPage(navController, selectedItem) }
         composable("page3") { CommunityPage(navController, selectedItem) }
         composable("page4") { ProfilePage(navController, selectedItem) { logoutUser() } }
+        composable("recyclablesPage") { RecyclablesPage(navController) }
     }
 }
 

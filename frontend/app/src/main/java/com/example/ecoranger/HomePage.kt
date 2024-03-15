@@ -104,7 +104,7 @@ fun HomePage(navController: NavHostController, selectedItem: MutableState<Int>) 
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { /* Add your click handling logic here */ }
+                        .clickable { navController.navigate("recyclablesPage") }
                         .background(color = Color.LightGray, shape = RoundedCornerShape(8.dp)),
                 ) {
                     Row(
