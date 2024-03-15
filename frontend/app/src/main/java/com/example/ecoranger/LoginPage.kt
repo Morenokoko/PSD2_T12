@@ -81,7 +81,11 @@ fun LoginPage(navController: NavHostController, context: Context) {
                 Button(
                     onClick = {
                         setLoggedIn(context, true) // Set login status to true
-                        navController.navigate("page0")
+                        navController.navigate("page0") {
+                            popUpTo("mainPage") {
+                                inclusive = true
+                            }
+                        }
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {

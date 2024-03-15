@@ -5,8 +5,11 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,7 +24,7 @@ import androidx.navigation.NavHostController
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun ProfilePage(navController: NavHostController, selectedItem: MutableState<Int>) {
+fun ProfilePage(navController: NavHostController, selectedItem: MutableState<Int>, logoutAction: () -> Unit) {
     val exitDialogShown = remember { mutableStateOf(false) }
 
     BackHandler(
@@ -46,16 +49,44 @@ fun ProfilePage(navController: NavHostController, selectedItem: MutableState<Int
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues), // Adjust the padding to fit your needs
+                    .padding(paddingValues)
+                    .padding(16.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Welcome to the Settings Page!")
+                Text("Username: John Cena")
+                Spacer(modifier = Modifier.padding(8.dp))
+                Text("Email: johncena@gmail.com")
+                Spacer(modifier = Modifier.padding(8.dp))
+                Text("Password: ******")
+                Spacer(modifier = Modifier.padding(16.dp))
+                HelpAndSupportButton()
+                Spacer(modifier = Modifier.padding(8.dp))
+                LogoutButton(onClick = logoutAction)
             }
         }
     )
 }
 
+@Composable
+fun HelpAndSupportButton() {
+    Button(
+        onClick = { /* TODO Handle help and support button click */ },
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text("Help and Support")
+    }
+}
+
+@Composable
+fun LogoutButton(onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text("Logout")
+    }
+}
 
 private fun exitApp() {
     // Close the app

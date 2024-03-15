@@ -1,7 +1,11 @@
 package com.example.ecoranger
 
+import BackHandler
+import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,7 +26,13 @@ import com.example.ecoranger.ui.theme.OnlyNotesTheme
 import androidx.compose.runtime.remember
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.Places
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,36 +56,46 @@ fun MyApp(activity: MainActivity) {
     val navController = rememberNavController()
     val selectedItem = remember { mutableIntStateOf(0) }
     val context = activity.applicationContext
-    val sharedPreferences: SharedPreferences = activity.getSharedPreferences("loginPrefs", Context.MODE_PRIVATE)
+    val sharedPreferences: SharedPreferences =
+        activity.getSharedPreferences("loginPrefs", Context.MODE_PRIVATE)
     val isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false)
-
-    if (isLoggedIn) {
-        NavHost(navController, startDestination = "page0") {
-            composable("mainPage") { MainPage(navController) }
-            composable("loginPage") { LoginPage(navController, context) }
-            composable("signUpPage") { SignUpPage(navController) }
-            composable("page0") { HomePage(navController, selectedItem) }
-            composable("page1") { BinsPage(navController, selectedItem) }
-            composable("page2") { CameraPage(navController, selectedItem) }
-            composable("page3") { CommunityPage(navController, selectedItem) }
-            composable("page4") { ProfilePage(navController, selectedItem) }
+    fun logoutUser() {
+        with(sharedPreferences.edit()) {
+            putBoolean("isLoggedIn", false)
+            apply()
         }
-    } else {
-        NavHost(navController, startDestination = "mainPage") {
-            composable("mainPage") { MainPage(navController) }
-            composable("loginPage") { LoginPage(navController, context) }
-            composable("signUpPage") { SignUpPage(navController) }
-            composable("page0") { HomePage(navController, selectedItem) }
-            composable("page1") { BinsPage(navController, selectedItem) }
-            composable("page2") { CameraPage(navController, selectedItem) }
-            composable("page3") { CommunityPage(navController, selectedItem) }
-            composable("page4") { ProfilePage(navController, selectedItem) }
-        }
+        navController.navigate("mainPage")
+    }
+    NavHost(
+        navController, startDestination = if (isLoggedIn) "page0" else "mainPage"
+    ) {
+        composable("mainPage") { MainPage(navController) }
+        composable("loginPage") { LoginPage(navController, context) }
+        composable("signUpPage") { SignUpPage(navController) }
+        composable("page0") { HomePage(navController, selectedItem) }
+        composable("page1") { BinsPage(navController, selectedItem) }
+        composable("page2") { CameraPage(navController, selectedItem) }
+        composable("page3") { CommunityPage(navController, selectedItem) }
+        composable("page4") { ProfilePage(navController, selectedItem) { logoutUser() } }
     }
 }
 
 @Composable
 fun MainPage(navController: NavHostController) {
+    val exitDialogShown = remember { mutableStateOf(false) }
+
+    BackHandler(onBackPressed = {
+        exitDialogShown.value = true
+    })
+
+    if (exitDialogShown.value) {
+        ExitConfirmationDialog(onConfirm = {
+            exitApp()
+        }, onDismiss = {
+            exitDialogShown.value = false
+        })
+    }
+
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -101,4 +121,9 @@ fun MainPage(navController: NavHostController) {
             Text("Sign Up")
         }
     }
+}
+
+private fun exitApp() {
+    // Close the app
+    android.os.Process.killProcess(android.os.Process.myPid())
 }
