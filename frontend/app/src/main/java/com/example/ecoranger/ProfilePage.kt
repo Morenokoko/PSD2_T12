@@ -4,6 +4,7 @@ import BackHandler
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -40,12 +41,12 @@ fun ProfilePage(navController: NavHostController, selectedItem: MutableState<Int
         )
     }
     Scaffold(
-        bottomBar = { BottomNavigationBar(navController, selectedItem)},
-        content = {
+        bottomBar = { BottomNavigationBar(navController, selectedItem) },
+        content = { paddingValues: PaddingValues ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(bottom = 56.dp), // Adjust the padding to fit your needs
+                    .padding(paddingValues), // Adjust the padding to fit your needs
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {

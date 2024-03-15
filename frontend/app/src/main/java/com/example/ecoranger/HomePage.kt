@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -56,133 +57,136 @@ fun HomePage(navController: NavHostController, selectedItem: MutableState<Int>) 
         })
     }
 
-    Scaffold(bottomBar = { BottomNavigationBar(navController, selectedItem) }, content = {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Top,
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth()
+    Scaffold(
+        bottomBar = { BottomNavigationBar(navController, selectedItem) },
+        content = { paddingValues: PaddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Top,
             ) {
-                Column {
-                    Text("Welcome back")
-                    Text(
-                        text = "John Cena", style = TextStyle(
-                            fontSize = 20.sp, fontWeight = FontWeight.Bold
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column {
+                        Text("Welcome back")
+                        Text(
+                            text = "John Cena", style = TextStyle(
+                                fontSize = 20.sp, fontWeight = FontWeight.Bold
+                            )
                         )
-                    )
+                    }
+                    Spacer(Modifier.weight(1f))
+                    Box(
+                        modifier = Modifier
+                            .clickable { /* Add your click handling logic here */ }
+                            .background(color = Color.LightGray, shape = RoundedCornerShape(8.dp)),
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                        ) {
+                            Text(
+                                text = "9000", textAlign = TextAlign.Center, style = TextStyle(
+                                    fontSize = 18.sp, fontWeight = FontWeight.Bold
+                                )
+                            )
+                            Text(
+                                text = "EcoPoints", textAlign = TextAlign.Center
+                            )
+                        }
+                    }
                 }
-                Spacer(Modifier.weight(1f))
+                Spacer(modifier = Modifier.height(16.dp))
                 Box(
                     modifier = Modifier
+                        .fillMaxWidth()
                         .clickable { /* Add your click handling logic here */ }
                         .background(color = Color.LightGray, shape = RoundedCornerShape(8.dp)),
                 ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "9000", textAlign = TextAlign.Center, style = TextStyle(
-                                fontSize = 18.sp, fontWeight = FontWeight.Bold
+                            text = "Know Your\nRecyclables", style = TextStyle(
+                                fontSize = 24.sp
                             )
                         )
-                        Text(
-                            text = "EcoPoints", textAlign = TextAlign.Center
+                        Spacer(Modifier.weight(1f))
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowRight,
+                            contentDescription = "Arrow Right",
+                            tint = Color.White
                         )
                     }
                 }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { /* Add your click handling logic here */ }
-                    .background(color = Color.LightGray, shape = RoundedCornerShape(8.dp)),
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Know Your\nRecyclables", style = TextStyle(
-                            fontSize = 24.sp
-                        )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Activity", style = TextStyle(
+                        fontSize = 24.sp, fontWeight = FontWeight.Bold
                     )
-                    Spacer(Modifier.weight(1f))
-                    Icon(
-                        imageVector = Icons.Default.KeyboardArrowRight,
-                        contentDescription = "Arrow Right",
-                        tint = Color.White
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Activity", style = TextStyle(
-                    fontSize = 24.sp, fontWeight = FontWeight.Bold
                 )
-            )
-            Divider(modifier = Modifier.padding(top = 8.dp))
-            if (activityList != null && activityList.isEmpty()) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = 16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text(
-                        text = "No recycling activity\nStart recycling now!",
-                        style = TextStyle(fontSize = 20.sp, textAlign = TextAlign.Center)
-                    )
-                }
-            } else {
-                LazyColumn {
-                    items(activityList) { activity ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Column(
-                                verticalArrangement = Arrangement.Center,
+                Divider(modifier = Modifier.padding(top = 8.dp))
+                if (activityList != null && activityList.isEmpty()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top = 16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text(
+                            text = "No recycling activity\nStart recycling now!",
+                            style = TextStyle(fontSize = 20.sp, textAlign = TextAlign.Center)
+                        )
+                    }
+                } else {
+                    LazyColumn {
+                        items(activityList) { activity ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 16.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text(
-                                    text = "${activity.date} ${activity.time}",
-                                )
-                                Text(
-                                    text = "${activity.location}", style = TextStyle(
-                                        fontSize = 20.sp
+                                Column(
+                                    verticalArrangement = Arrangement.Center,
+                                ) {
+                                    Text(
+                                        text = "${activity.date} ${activity.time}",
                                     )
-                                )
-                            }
-                            Spacer(Modifier.weight(1f))
-                            Column(
-                                horizontalAlignment = Alignment.End,
-                                verticalArrangement = Arrangement.Center,
-                            ) {
-                                Text(
-                                    text = "${activity.points}", style = TextStyle(
-                                        fontSize = 20.sp
+                                    Text(
+                                        text = "${activity.location}", style = TextStyle(
+                                            fontSize = 20.sp
+                                        )
                                     )
-                                )
-                                Text(
-                                    text = "points"
-                                )
+                                }
+                                Spacer(Modifier.weight(1f))
+                                Column(
+                                    horizontalAlignment = Alignment.End,
+                                    verticalArrangement = Arrangement.Center,
+                                ) {
+                                    Text(
+                                        text = "${activity.points}", style = TextStyle(
+                                            fontSize = 20.sp
+                                        )
+                                    )
+                                    Text(
+                                        text = "points"
+                                    )
+                                }
                             }
+                            Divider()
                         }
-                        Divider()
                     }
                 }
             }
-        }
-    })
+        })
 }
 
 

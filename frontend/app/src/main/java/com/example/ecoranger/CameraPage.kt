@@ -53,6 +53,7 @@ import androidx.lifecycle.LifecycleOwner
 import android.provider.Settings
 import android.net.Uri
 import android.app.Activity
+
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun CameraPage(navController: NavHostController, selectedItem: MutableState<Int>) {
@@ -139,7 +140,6 @@ private fun CameraContent() {
             )
         }
     ) { paddingValues: PaddingValues ->
-
         Box(modifier = Modifier.fillMaxSize()) {
             AndroidView(
                 modifier = Modifier
