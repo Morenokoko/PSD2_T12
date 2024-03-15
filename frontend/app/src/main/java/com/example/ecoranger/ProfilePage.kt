@@ -20,7 +20,7 @@ import androidx.navigation.NavHostController
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun NotesPage(navController: NavHostController, selectedItem: MutableState<Int>) {
+fun ProfilePage(navController: NavHostController, selectedItem: MutableState<Int>) {
     val exitDialogShown = remember { mutableStateOf(false) }
 
     BackHandler(
@@ -49,7 +49,7 @@ fun NotesPage(navController: NavHostController, selectedItem: MutableState<Int>)
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Welcome to the Notes Page!")
+                Text("Welcome to the Settings Page!")
             }
         }
     )

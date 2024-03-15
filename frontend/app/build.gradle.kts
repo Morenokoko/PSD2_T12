@@ -70,6 +70,19 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    implementation ("androidx.compose.material:material-icons-extended:1.6.3")
+
+    //// ACCOMPANIST ////
+    implementation ("com.google.accompanist:accompanist-permissions:0.32.0")
+
+    /// CAMERA ///
+    implementation ("androidx.camera:camera-camera2:1.3.1")
+    implementation ("androidx.camera:camera-view:1.3.1")
+    implementation("androidx.camera:camera-lifecycle:1.3.2")
+    implementation ("androidx.camera:camera-extensions:1.3.1")
+
+    /// GOOGLE MAPS ///
     implementation ("com.google.android.libraries.places:places:2.6.0")
     implementation ("com.google.maps.android:places-ktx:2.0.0")
     implementation ("com.google.android.gms:play-services-maps:17.0.0")

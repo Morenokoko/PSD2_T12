@@ -55,10 +55,10 @@ fun MyApp(activity: MainActivity) {
             composable("loginPage") { LoginPage(navController, context) }
             composable("signUpPage") { SignUpPage(navController) }
             composable("page0") { HomePage(navController, selectedItem) }
-            composable("page1") { GroupsPage(navController, selectedItem) }
-            composable("page2") { NotesPage(navController, selectedItem) }
-            composable("page3") { ActivityPage(navController, selectedItem) }
-            composable("page4") { SettingsPage(navController, selectedItem) }
+            composable("page1") { BinsPage(navController, selectedItem) }
+            composable("page2") { CameraPage(navController, selectedItem) }
+            composable("page3") { CommunityPage(navController, selectedItem) }
+            composable("page4") { ProfilePage(navController, selectedItem) }
         }
     } else {
         NavHost(navController, startDestination = "mainPage") {
@@ -66,10 +66,10 @@ fun MyApp(activity: MainActivity) {
             composable("loginPage") { LoginPage(navController, context) }
             composable("signUpPage") { SignUpPage(navController) }
             composable("page0") { HomePage(navController, selectedItem) }
-            composable("page1") { GroupsPage(navController, selectedItem) }
-            composable("page2") { NotesPage(navController, selectedItem) }
-            composable("page3") { ActivityPage(navController, selectedItem) }
-            composable("page4") { SettingsPage(navController, selectedItem) }
+            composable("page1") { BinsPage(navController, selectedItem) }
+            composable("page2") { CameraPage(navController, selectedItem) }
+            composable("page3") { CommunityPage(navController, selectedItem) }
+            composable("page4") { ProfilePage(navController, selectedItem) }
         }
     }
 }
