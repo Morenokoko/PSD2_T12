@@ -71,7 +71,7 @@ fun MyApp(activity: MainActivity) {
     ) {
         composable("mainPage") { MainPage(navController) }
         composable("loginPage") { LoginPage(navController, context) }
-        composable("signUpPage") { SignUpPage(navController) }
+        composable("signUpPage") { SignUpPage(navController, context) }
         composable("page0") { HomePage(navController, selectedItem) }
         composable("page1") { BinsPage(navController, selectedItem) }
         composable("page2") { CameraPage(navController, selectedItem) }

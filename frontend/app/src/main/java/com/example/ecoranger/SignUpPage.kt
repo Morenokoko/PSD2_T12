@@ -1,6 +1,7 @@
 package com.example.ecoranger
 
 import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -32,7 +33,7 @@ import androidx.navigation.NavHostController
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun SignUpPage(navController: NavHostController) {
+fun SignUpPage(navController: NavHostController, context: Context) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -70,7 +71,14 @@ fun SignUpPage(navController: NavHostController) {
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
-                    onClick = { navController.navigate("page0") },
+                    onClick = {
+                        setLoggedIn(context, true) // Set login status to true
+                        navController.navigate("page0") {
+                            popUpTo("mainPage") {
+                                inclusive = true
+                            }
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Sign Up")
