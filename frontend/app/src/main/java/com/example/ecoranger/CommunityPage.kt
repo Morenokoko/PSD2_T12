@@ -20,7 +20,7 @@ import androidx.navigation.NavHostController
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun ActivityPage(navController: NavHostController, selectedItem: MutableState<Int>) {
+fun CommunityPage(navController: NavHostController, selectedItem: MutableState<Int>) {
     val exitDialogShown = remember { mutableStateOf(false) }
 
     BackHandler(

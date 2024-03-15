@@ -38,7 +38,7 @@ private const val REQUEST_LOCATION_PERMISSIONS = 123
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun GroupsPage(navController: NavHostController, selectedItem: MutableState<Int>) {
+fun BinsPage(navController: NavHostController, selectedItem: MutableState<Int>) {
     val context = LocalContext.current
     val fusedLocationClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(context)
