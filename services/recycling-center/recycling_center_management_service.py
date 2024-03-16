@@ -49,14 +49,15 @@ def get_recycling_centers():
     centers = list(collection.find({}, {'_id': 0}))
     return jsonify(centers)
 
-# Endpoint to get a specific recycling center by ID
-@app.route('/recycling_centers/<int:center_id>', methods=['GET'])
-def get_recycling_center(center_id):
-    center = collection.find_one({'properties.id': center_id}, {'_id': 0})
+# Endpoint to get a specific recycling center by INC_CRC
+@app.route('/recycling_centers/<string:inc_crc>', methods=['GET'])
+def get_recycling_center_by_inc_crc(inc_crc):
+    center = collection.find_one({'properties.INC_CRC': inc_crc}, {'_id': 0})
     if center:
         return jsonify(center)
     else:
         return jsonify({'error': 'Recycling center not found'}), 404
+
 
 if __name__ == '__main__':
     app.run(debug=True)
