@@ -1,5 +1,8 @@
 package com.example.ecoranger
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
@@ -12,6 +15,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarDefaults.containerColor
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,28 +24,47 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 
 
 @Composable
-fun BottomNavigationBar(navController: NavHostController, selectedItem: MutableState<Int> = mutableIntStateOf(0)) {
+fun BottomNavigationBar(
+    navController: NavHostController,
+    selectedItem: MutableState<Int> = mutableIntStateOf(0)
+) {
 
     var selectedItem by remember { selectedItem }
     val items = listOf("Home", "Bins", "Recycle", "Community", "Profile")
-    NavigationBar {
+    NavigationBar(
+        containerColor = Color(0xFF254d32)
+    ) {
         items.forEachIndexed { index, item ->
             NavigationBarItem(
                 icon = {
-                    when (index) {
-                        0 -> Icon(Icons.Filled.Home, contentDescription = "Home")
-                        1 -> Icon(Icons.Filled.LocationOn, contentDescription = "Bins")
-                        2 -> Icon(Icons.Filled.Add, contentDescription = "Recycle")
-                        3 -> Icon(Icons.Filled.Favorite, contentDescription = "Community")
-                        4 -> Icon(Icons.Filled.Person, contentDescription = "Profile")
-                        else -> Icon(Icons.Filled.Home, contentDescription = "Home")
-                    }
+                    Icon(
+                        imageVector = when (index) {
+                            0 -> Icons.Filled.Home
+                            1 -> Icons.Filled.LocationOn
+                            2 -> Icons.Filled.Add
+                            3 -> Icons.Filled.Favorite
+                            4 -> Icons.Filled.Person
+                            else -> Icons.Filled.Home
+                        },
+                        contentDescription = item,
+                    )
                 },
+                colors = androidx.compose.material3.NavigationBarItemDefaults
+                    .colors(
+                        selectedTextColor = Color(0xFFd0db97),
+                        unselectedTextColor = Color.White,
+                        unselectedIconColor = Color.White,
+                        selectedIconColor = Color(0xFFd0db97),
+                        indicatorColor = Color(0xFF254d32)
+                    ),
                 label = { Text(item) },
                 selected = selectedItem == index,
                 onClick = {
