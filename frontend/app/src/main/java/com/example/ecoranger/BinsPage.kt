@@ -5,6 +5,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.PackageManager
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -21,20 +22,41 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.navigation.NavHostController
+import com.example.ecoranger.data.Bin
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.gson.GsonBuilder
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-
+import kotlinx.coroutines.withContext
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.GET
 
 private const val REQUEST_LOCATION_PERMISSIONS = 123
+
+interface ApiService {
+    // Define your API endpoints here
+    @GET("recycling_centers")
+    suspend fun getRecyclingCenters(): List<Bin>
+}
+fun createApiService(): ApiService {
+    val gson = GsonBuilder().setLenient().create() // Enable lenient parsing
+    val retrofit = Retrofit.Builder()
+        .baseUrl("http://192.168.1.177:5000/")
+        .addConverterFactory(GsonConverterFactory.create(gson))
+        .build()
+
+    return retrofit.create(ApiService::class.java)
+}
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -49,6 +71,24 @@ fun BinsPage(navController: NavHostController, selectedItem: MutableState<Int>) 
     }
     val coroutineScope = rememberCoroutineScope()
     var userPosition by remember { mutableStateOf<LatLng?>(null) }
+    val apiService = remember { createApiService() }
+    var binsList by remember { mutableStateOf<List<Bin>>(emptyList()) }
+
+    // Call the API to retrieve the binsList when the page is launched
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            try {
+                val response = apiService.getRecyclingCenters()
+                withContext(Dispatchers.Main) {
+                    binsList = response
+                    Log.d("API_SUCCESS", "Bins list retrieved successfully: $binsList")
+                }
+            } catch (e: Exception) {
+                // Handle errors
+                Log.e("API_ERROR", "Error fetching bins list: ${e.message}", e)
+            }
+        }
+    }
 
     // Get user's location and update the camera position
     LaunchedEffect(Unit) {
@@ -106,6 +146,7 @@ fun BinsPage(navController: NavHostController, selectedItem: MutableState<Int>) 
             }
         )
     }
+
     Scaffold(
         bottomBar = { BottomNavigationBar(navController, selectedItem) },
         content = { padding -> // added padding so that maps is not hidden behind bottomBar
@@ -125,12 +166,20 @@ fun BinsPage(navController: NavHostController, selectedItem: MutableState<Int>) 
                             snippet = "Your current location"
                         )
                     }
+                    // map each bin location
+                    binsList.forEach { bin ->
+                        val binLatLng = LatLng(bin.latitude, bin.longitude)
+                        Marker(
+                            state = MarkerState(position = binLatLng),
+                            title = bin.ADDRESSSTREETNAME,
+                            snippet = bin.ADDRESSPOSTALCODE,
+                        )
+                    }
                 }
             }
         }
     )
 }
-
 
 private fun exitApp() {
     // Close the app

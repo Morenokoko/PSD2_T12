@@ -72,6 +72,8 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
     implementation ("androidx.compose.material:material-icons-extended:1.6.3")
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
 
     //// ACCOMPANIST ////
     implementation ("com.google.accompanist:accompanist-permissions:0.32.0")
