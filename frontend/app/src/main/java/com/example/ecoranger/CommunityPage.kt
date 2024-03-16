@@ -23,9 +23,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,6 +39,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.ecoranger.data.CommunityPost
 import com.example.ecoranger.data.communityPostList
+import org.json.JSONObject
+import androidx.compose.ui.platform.LocalContext
+import org.json.JSONArray
+import java.net.HttpURLConnection
+import java.net.URL
 
 
 // Define a data class for the card information
@@ -44,7 +52,44 @@ import com.example.ecoranger.data.communityPostList
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun CommunityPage(navController: NavHostController, selectedItem: MutableState<Int>) {
+    val context = LocalContext.current
     val exitDialogShown = remember { mutableStateOf(false) }
+    var communityPosts by remember { mutableStateOf<List<JSONObject>>(emptyList()) }
+    var fetchPostsTriggered by remember { mutableStateOf(false) }
+
+//    LaunchedEffect(fetchPostsTriggered) {
+//        if (fetchPostsTriggered) {
+//            try {
+//                // TODO: Replace with the actual API endpoint
+//                val url = URL("${MainActivity.COMMUNITY_BASE_URL}/api/community/posts")
+//                val connection = url.openConnection() as HttpURLConnection
+//                connection.requestMethod = "GET"
+//
+//                val responseCode = connection.responseCode
+//                if (responseCode == HttpURLConnection.HTTP_OK) {
+//                    val inputStream = connection.inputStream
+//                    val responseBody = inputStream.bufferedReader().use { it.readText() }
+//                    // Parse the response and update the communityPosts state
+//                    val jsonArray = JSONArray(responseBody)
+//                    communityPosts = List(jsonArray.length()) { index ->
+//                        jsonArray.getJSONObject(index)
+//                    }
+//                }
+//
+//                connection.disconnect()
+//            } catch (e: Exception) {
+//                // TODO: Handle network or other exceptions
+//                // Handle network or other exceptions
+//                // Display an error message to the user
+//            }
+//        }
+//    }
+//
+//    // Trigger the posts fetch when the screen is composed
+//    LaunchedEffect(Unit) {
+//        fetchPostsTriggered = true
+//    }
+
 
     BackHandler(
         onBackPressed = {
@@ -89,6 +134,16 @@ fun CommunityPage(navController: NavHostController, selectedItem: MutableState<I
                     items(communityPostList) { item ->
                         CommunityCard(item)
                     }
+                    // TODO: Replace with the actual list of community items
+//                    items(communityPosts) { post ->
+//                        CommunityCard(
+//                            title = post.getString("title"),
+//                            description = post.getString("description"),
+//                            username = post.getString("username"),
+//                            dateTime = post.getString("dateTime"),
+//                            numComments = post.getInt("numComments")
+//                        )
+//                    }
                 }
             }
         }

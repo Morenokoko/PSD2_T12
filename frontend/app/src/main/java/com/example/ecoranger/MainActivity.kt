@@ -35,6 +35,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 class MainActivity : ComponentActivity() {
+    // Public static variables
+    companion object {
+        const val USER_MANAGEMENT_BASE_URL = "http://localhost:5000"
+        const val COMMUNITY_BASE_URL = "http://localhost:5001"
+        // Add more base URLs for other microservices
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -127,4 +133,18 @@ fun MainPage(navController: NavHostController) {
 private fun exitApp() {
     // Close the app
     android.os.Process.killProcess(android.os.Process.myPid())
+}
+
+fun getUserIdFromStorage(context: Context): String {
+    val sharedPreferences = context.getSharedPreferences("loginPrefs", Context.MODE_PRIVATE)
+    return sharedPreferences.getString("userId", "") ?: ""
+}
+
+fun setLoggedIn(context: Context, userId: String, isLoggedIn: Boolean) {
+    val sharedPreferences = context.getSharedPreferences("loginPrefs", Context.MODE_PRIVATE)
+    with(sharedPreferences.edit()) {
+        putString("userId", userId)
+        putBoolean("isLoggedIn", isLoggedIn)
+        apply()
+    }
 }
