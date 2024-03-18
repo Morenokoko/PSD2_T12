@@ -66,7 +66,7 @@ fun ResultsPage(navController: NavHostController, context: Context) { // Pass th
     // Set up Retrofit
     val gson = GsonBuilder().create()
     val retrofit = Retrofit.Builder()
-        .baseUrl("http://10.0.2.2:5001/") // Replace <your_server_ip> with your server's IP address
+        .baseUrl(MainActivity.IMAGE_PROCESSING_BASE_URL) // Replace <your_server_ip> with your server's IP address
         .addConverterFactory(GsonConverterFactory.create(gson))
         .build()
 

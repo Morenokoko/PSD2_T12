@@ -83,9 +83,10 @@ fun MyApp(activity: MainActivity) {
         composable("signUpPage") { SignUpPage(navController, context) }
         composable("page0") { HomePage(navController, selectedItem) }
         composable("page1") { BinsPage(navController, selectedItem) }
-        composable("page2") { CameraPage(navController, selectedItem) }
+        composable("page2") { ScanQrPage(navController, selectedItem) }
         composable("page3") { CommunityPage(navController, selectedItem) }
         composable("page4") { ProfilePage(navController, selectedItem) { logoutUser() } }
+        composable("page5") { ObjectDetectionPage(navController, selectedItem) }
         composable("recyclablesPage") { RecyclablesPage(navController) }
         composable("resultsPage") { ResultsPage(navController, context) }
     }
