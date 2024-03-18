@@ -19,10 +19,8 @@ import android.Manifest
 import android.content.Context
 import android.util.Log
 import android.content.Intent
-import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.camera.core.Camera
 import androidx.camera.view.PreviewView
 import androidx.compose.ui.platform.LocalContext
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -32,7 +30,6 @@ import com.google.accompanist.permissions.rememberPermissionState
 import android.graphics.Color
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.LinearLayout
-import androidx.camera.view.LifecycleCameraController
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -48,12 +45,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
-import androidx.core.content.ContextCompat.checkSelfPermission
-import androidx.lifecycle.LifecycleOwner
 import android.provider.Settings
 import android.net.Uri
-import android.app.Activity
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -63,14 +56,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.FabPosition
 import androidx.compose.runtime.LaunchedEffect
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Locale
 import androidx.core.content.ContextCompat
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun CameraPage(navController: NavHostController, selectedItem: MutableState<Int>) {
+fun ObjectDetectionPage(navController: NavHostController, selectedItem: MutableState<Int>) {
     val exitDialogShown = remember { mutableStateOf(false) }
 
     BackHandler(
@@ -179,13 +170,13 @@ private fun CameraContent(navController: NavHostController) {
                         ContextCompat.getMainExecutor(context),
                         object : ImageCapture.OnImageSavedCallback {
                             override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                                Log.d("CameraPage", "Image saved: ${photoFile.absolutePath}")
+                                Log.d("ObjectDetectionPage", "Image saved: ${photoFile.absolutePath}")
                                 // Navigate to the results page or do something with the image
                                 navController.navigate("resultsPage")
                             }
 
                             override fun onError(exception: ImageCaptureException) {
-                                Log.e("CameraPage", "Image capture failed", exception)
+                                Log.e("ObjectDetectionPage", "Image capture failed", exception)
                             }
                         }
                     )
