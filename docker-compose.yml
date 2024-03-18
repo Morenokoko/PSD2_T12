@@ -1,0 +1,39 @@
+version: '3'
+services:
+  user-management:
+    build:
+      context: ./services/user-management
+      # Add this line to fix permission issues on WSL
+      args:
+        DOCKER_BUILDKIT: 1
+    ports:
+      - "5000:5000" # Map the container port to your local machine (replace 8000 with your actual port)
+    volumes:
+      - ./services/user-management:/app # Mount the current directory to the container's /app directory (for live reloading)
+    environment:
+      - FLASK_ENV=development # Set the Flask environment to development
+
+  image-processing:
+    build:
+      context: ./services/image-processing
+      args:
+        DOCKER_BUILDKIT: 1
+    ports:
+      - "5003:5003"
+    volumes:
+      - ./services/image-processing:/app
+    environment:
+      - FLASK_ENV=development
+  
+  activity-management:
+    build:
+      context: ./services/activity-management
+      # Add this line to fix permission issues on WSL
+      args:
+        DOCKER_BUILDKIT: 1
+    ports:
+      - "5004:5004" # Map the container port to your local machine (replace 8000 with your actual port)
+    volumes:
+      - ./services/activity-management:/app # Mount the current directory to the container's /app directory (for live reloading)
+    environment:
+      - FLASK_ENV=development # Set the Flask environment to development

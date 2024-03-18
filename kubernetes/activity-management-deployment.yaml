@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: activity-management
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: activity-management
+  template:
+    metadata:
+      labels:
+        app: activity-management
+    spec:
+      containers:
+        - name: activity-management
+          image: activity-management:latest
+          ports:
+            - containerPort: 5004
+          env:
+            - name: FLASK_ENV
+              value: development
