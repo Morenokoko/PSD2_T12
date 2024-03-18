@@ -4,9 +4,10 @@ import json
 from bs4 import BeautifulSoup
 from pymongo import MongoClient
 
-
 app = Flask(__name__)
 
+# Define the base URL
+RECYCLING_CENTER_BASE_URL = "http://10.0.2.2:5002"
 
 # Construct the relative path to the GeoJSON file
 relative_path = 'RecyclingBins.geojson'
@@ -38,6 +39,49 @@ for center in recycling_centers:
             description_properties = parse_description(center['properties']['Description'])
             del center['properties']['Description']
             center['properties'].update(description_properties)
+
+# Endpoint to get all recycling centers
+@app.route('/recycling_centers', methods=['GET'])
+def get_recycling_centers():
+    formatted_centers = []
+    for center in recycling_centers:
+        formatted_center = {
+            "INC_CRC": center['properties']['INC_CRC'],
+            "latitude": center['geometry']['coordinates'][1],
+            "longitude": center['geometry']['coordinates'][0],
+            "ADDRESSBLOCKHOUSENUMBER": center['properties']['ADDRESSBLOCKHOUSENUMBER'],
+            "ADDRESSBUILDINGNAME": center['properties']['ADDRESSBUILDINGNAME'],
+            "ADDRESSFLOORNUMBER": center['properties']['ADDRESSFLOORNUMBER'],
+            "ADDRESSPOSTALCODE": center['properties']['ADDRESSPOSTALCODE'],
+            "ADDRESSSTREETNAME": center['properties']['ADDRESSSTREETNAME'],
+            "ADDRESSUNITNUMBER": center['properties']['ADDRESSUNITNUMBER']
+        }
+        formatted_centers.append(formatted_center)
+    return jsonify(formatted_centers)
+
+# Endpoint to get a specific recycling center by ID
+@app.route('/recycling_centers/<int:center_id>', methods=['GET'])
+def get_recycling_center(center_id):
+    center = next((center for center in recycling_centers if center['properties']['id'] == center_id), None)
+    if center:
+        formatted_center = {
+            "INC_CRC": center['properties']['INC_CRC'],
+            "latitude": center['geometry']['coordinates'][1],
+            "longitude": center['geometry']['coordinates'][0],
+            "ADDRESSBLOCKHOUSENUMBER": center['properties']['ADDRESSBLOCKHOUSENUMBER'],
+            "ADDRESSBUILDINGNAME": center['properties']['ADDRESSBUILDINGNAME'],
+            "ADDRESSFLOORNUMBER": center['properties']['ADDRESSFLOORNUMBER'],
+            "ADDRESSPOSTALCODE": center['properties']['ADDRESSPOSTALCODE'],
+            "ADDRESSSTREETNAME": center['properties']['ADDRESSSTREETNAME'],
+            "ADDRESSUNITNUMBER": center['properties']['ADDRESSUNITNUMBER']
+        }
+        return jsonify(formatted_center)
+    else:
+        return jsonify({'error': 'Recycling center not found'}), 404
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", debug=True)
+
 
 # # Endpoint to get all recycling centers
 # @app.route('/recycling_centers', methods=['GET'])
