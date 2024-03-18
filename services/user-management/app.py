@@ -30,16 +30,17 @@ def get_user(user_id):
 def register_user():
     data = request.get_json()
     username = data['username']
+    email = data['email']
     password = data['password']
 
-    # Check if the username already exists
-    existing_user = users_collection.find_one({'$or': [{'username': username}]})
+    # Check if the username or email already exists
+    existing_user = users_collection.find_one({'$or': [{'username': username}, {'email': email}]})
     if existing_user:
-        return jsonify({'message': 'Username already exists'}), 400
+        return jsonify({'message': 'Username or email already exists'}), 400
 
     # Create a new user
     hashed_password = generate_password_hash(password)
-    user = {'username': username, 'password': hashed_password}
+    user = {'username': username, 'email': email, 'password': hashed_password}
     result = users_collection.insert_one(user)
     user_id = str(result.inserted_id)
 
@@ -80,16 +81,19 @@ def get_user_profile():
 def update_user(user_id):
     data = request.get_json()
     username = data.get('username')
+    email = data.get('email')
 
     # Find the user by ID
     user = users_collection.find_one({'_id': ObjectId(user_id)})
     if not user:
         return jsonify({'message': 'User not found'}), 404
 
-    # Update the user fields
+   # Update the user fields
     update_data = {}
     if username:
         update_data['username'] = username
+    if email:
+        update_data['email'] = email
 
     users_collection.update_one({'_id': ObjectId(user_id)}, {'$set': update_data})
 

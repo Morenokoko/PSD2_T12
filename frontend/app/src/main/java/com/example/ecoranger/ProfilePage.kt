@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +28,8 @@ import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -36,28 +39,43 @@ fun ProfilePage(navController: NavHostController, selectedItem: MutableState<Int
     val exitDialogShown = remember { mutableStateOf(false) }
     var userProfile by remember { mutableStateOf<JSONObject?>(null) }
     var fetchProfileTriggered by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
+
 
     LaunchedEffect(fetchProfileTriggered) {
         if (fetchProfileTriggered) {
             try {
-                val url = URL("${MainActivity.USER_MANAGEMENT_BASE_URL}/api/users/profile")
-                val connection = url.openConnection() as HttpURLConnection
-                connection.requestMethod = "GET"
-                connection.setRequestProperty("Authorization", getUserIdFromStorage(context))
+                withContext(Dispatchers.IO) {
+                    val url = URL("${MainActivity.USER_MANAGEMENT_BASE_URL}/api/users/profile")
+                    val connection = url.openConnection() as HttpURLConnection
+                    connection.connectTimeout = 30000 // 30 seconds
+                    connection.readTimeout = 30000 // 30 seconds
+                    connection.requestMethod = "GET"
+                    connection.setRequestProperty("Authorization", getUserIdFromStorage(context))
 
-                val responseCode = connection.responseCode
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    val inputStream = connection.inputStream
-                    val responseBody = inputStream.bufferedReader().use { it.readText() }
-                    // Parse the response and update the userProfile state
-                    userProfile = JSONObject(responseBody)
+                    val responseCode = connection.responseCode
+                    println("Response Code: $responseCode")
+                    withContext(Dispatchers.Main) {
+                        if (responseCode == HttpURLConnection.HTTP_OK) {
+                            val inputStream = connection.inputStream
+                            val responseBody = inputStream.bufferedReader().use { it.readText() }
+                            println("Response Body: $responseBody")
+                            // Parse the response and update the userProfile state
+                            userProfile = JSONObject(responseBody)
+                        } else {
+                            // Handle error response
+                            val errorStream = connection.errorStream
+                            val errorResponseBody = errorStream?.bufferedReader()?.use { it.readText() }
+                            val errorResponse = JSONObject(errorResponseBody ?: "{}")
+                            errorMessage = errorResponse.getString("error")
+                        }
+                    }
+
+                    connection.disconnect()
                 }
-
-                connection.disconnect()
             } catch (e: Exception) {
-                // TODO: Handle network or other exceptions
-                // Handle network or other exceptions
-                // Display an error message to the user
+                errorMessage = "An error occurred. Please try again."
+                e.printStackTrace()
             }
         }
     }
@@ -94,17 +112,33 @@ fun ProfilePage(navController: NavHostController, selectedItem: MutableState<Int
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                userProfile?.let {
-                    Text("Username: ${it.getString("username")}")
-                    Spacer(modifier = Modifier.padding(8.dp))
-                    Text("Email: ${it.getString("email")}")
-                    Spacer(modifier = Modifier.padding(8.dp))
-                    Text("Password: ******")
-                    Spacer(modifier = Modifier.padding(16.dp))
-                    HelpAndSupportButton()
-                    Spacer(modifier = Modifier.padding(8.dp))
-                    LogoutButton(onClick = logoutAction)
+                if (userProfile != null) {
+                    val username = userProfile!!.optString("username", "")
+                    val email = userProfile!!.optString("email", "")
+
+                    if (username.isNotEmpty() && email.isNotEmpty()) {
+                        Text("Username: $username")
+                        Spacer(modifier = Modifier.padding(8.dp))
+                        Text("Email: $email")
+                        Spacer(modifier = Modifier.padding(8.dp))
+                        Text("Password: ******")
+                        Spacer(modifier = Modifier.padding(16.dp))
+                    } else {
+                        Text("Error: Missing user information")
+                    }
+                } else {
+                    Text("Loading...")
                 }
+                if (errorMessage.isNotEmpty()) {
+                    Text(
+                        text = errorMessage,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+                HelpAndSupportButton()
+                Spacer(modifier = Modifier.padding(8.dp))
+                LogoutButton(onClick = logoutAction)
             }
         }
     )

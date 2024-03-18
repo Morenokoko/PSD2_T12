@@ -1,0 +1,10 @@
+version: '3'
+services:
+  user-management:
+    build: ./services/user-management
+    ports:
+      - "5000:5000" # Map the container port to your local machine (replace 8000 with your actual port)
+    volumes:
+      - ./services/user-management:/app # Mount the current directory to the container's /app directory (for live reloading)
+    environment:
+      - FLASK_ENV=development # Set the Flask environment to development

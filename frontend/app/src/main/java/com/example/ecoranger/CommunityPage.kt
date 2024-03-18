@@ -41,6 +41,8 @@ import com.example.ecoranger.data.CommunityPost
 import com.example.ecoranger.data.communityPostList
 import org.json.JSONObject
 import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import java.net.HttpURLConnection
 import java.net.URL
@@ -56,31 +58,45 @@ fun CommunityPage(navController: NavHostController, selectedItem: MutableState<I
     val exitDialogShown = remember { mutableStateOf(false) }
     var communityPosts by remember { mutableStateOf<List<JSONObject>>(emptyList()) }
     var fetchPostsTriggered by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
 
+    // TODO: Uncomment the following code to fetch the community posts when the API is ready
 //    LaunchedEffect(fetchPostsTriggered) {
 //        if (fetchPostsTriggered) {
 //            try {
-//                // TODO: Replace with the actual API endpoint
-//                val url = URL("${MainActivity.COMMUNITY_BASE_URL}/api/community/posts")
-//                val connection = url.openConnection() as HttpURLConnection
-//                connection.requestMethod = "GET"
+//                withContext(Dispatchers.IO) {
+//                    val url = URL("${MainActivity.COMMUNITY_BASE_URL}/api/community/posts")
+//                    val connection = url.openConnection() as HttpURLConnection
+//                    connection.connectTimeout = 30000 // 30 seconds
+//                    connection.readTimeout = 30000 // 30 seconds
+//                    connection.requestMethod = "GET"
 //
-//                val responseCode = connection.responseCode
-//                if (responseCode == HttpURLConnection.HTTP_OK) {
-//                    val inputStream = connection.inputStream
-//                    val responseBody = inputStream.bufferedReader().use { it.readText() }
-//                    // Parse the response and update the communityPosts state
-//                    val jsonArray = JSONArray(responseBody)
-//                    communityPosts = List(jsonArray.length()) { index ->
-//                        jsonArray.getJSONObject(index)
+//                    val responseCode = connection.responseCode
+//                    println("Response Code: $responseCode")
+//                    withContext(Dispatchers.Main) {
+//                        if (responseCode == HttpURLConnection.HTTP_OK) {
+//                            val inputStream = connection.inputStream
+//                            val responseBody = inputStream.bufferedReader().use { it.readText() }
+//                            println("Response Body: $responseBody")
+//                            // Parse the response and update the communityPosts state
+//                            val jsonArray = JSONArray(responseBody)
+//                            communityPosts = List(jsonArray.length()) { index ->
+//                                jsonArray.getJSONObject(index)
+//                            }
+//                        } else {
+//                            // Handle error response
+//    val errorStream = connection.errorStream
+//    val errorResponseBody = errorStream?.bufferedReader()?.use { it.readText() }
+//    val errorResponse = JSONObject(errorResponseBody ?: "{}")
+//    errorMessage = errorResponse.getString("error")
+//                        }
 //                    }
-//                }
 //
-//                connection.disconnect()
+//                    connection.disconnect()
+//                }
 //            } catch (e: Exception) {
-//                // TODO: Handle network or other exceptions
-//                // Handle network or other exceptions
-//                // Display an error message to the user
+//                errorMessage = "An error occurred. Please try again."
+//                e.printStackTrace()
 //            }
 //        }
 //    }
@@ -134,7 +150,7 @@ fun CommunityPage(navController: NavHostController, selectedItem: MutableState<I
                     items(communityPostList) { item ->
                         CommunityCard(item)
                     }
-                    // TODO: Replace with the actual list of community items
+                    // TODO: Uncomment the following code to display the actual community posts when the API is ready
 //                    items(communityPosts) { post ->
 //                        CommunityCard(
 //                            title = post.getString("title"),
@@ -143,6 +159,15 @@ fun CommunityPage(navController: NavHostController, selectedItem: MutableState<I
 //                            dateTime = post.getString("dateTime"),
 //                            numComments = post.getInt("numComments")
 //                        )
+//                    }
+//                    if (errorMessage.isNotEmpty()) {
+//                        item {
+//                            Text(
+//                                text = errorMessage,
+//                                color = MaterialTheme.colorScheme.error,
+//                                modifier = Modifier.padding(16.dp)
+//                            )
+//                        }
 //                    }
                 }
             }
