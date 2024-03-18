@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
     // Public static variables
     companion object {
         const val USER_MANAGEMENT_BASE_URL = "http://10.0.2.2:5000"
-        const val COMMUNITY_BASE_URL = "http://10.0.2.2:5001"
+        const val CONTENT_MANAGEMENT_BASE_URL = "http://10.0.2.2:5001"
         // Add more base URLs for other microservices
     }
     override fun onCreate(savedInstanceState: Bundle?) {

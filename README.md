@@ -19,6 +19,13 @@ Lastly, in your `local.properties` file of your android project root folder, add
 docker-compose up --build
 ```
 
+## Port Config
+
+- 5000 - user-management
+- 5001 - content-management
+- 5002 - recycling-center
+- 5003 - image-processing
+
 ## Project Structure
 
 ```
