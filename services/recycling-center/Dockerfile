@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Expose the port your application runs on (replace 8000 with your actual port)
-EXPOSE 5002
+EXPOSE 5000
 
 # Set the entry point for the container
 CMD ["python", "recycling_center_management_service.py"]
