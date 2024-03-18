@@ -107,10 +107,5 @@ def delete_user(user_id):
     else:
         return jsonify({'message': 'User not found'}), 404
 
-@app.route('/api/community/posts', methods=['GET'])
-def get_community_posts():
-    posts = list(posts_collection.find({}, {'_id': 0}))
-    return jsonify(posts), 200
-
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

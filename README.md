@@ -25,6 +25,7 @@ docker-compose up --build
 - 5001 - content-management
 - 5002 - recycling-center
 - 5003 - image-processing
+- 5004 - activity-management
 
 ## Project Structure
 
