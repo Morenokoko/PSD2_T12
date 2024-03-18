@@ -103,4 +103,7 @@ dependencies {
     implementation ("com.google.android.gms:play-services-maps:17.0.0")
     implementation ("com.google.maps.android:maps-compose:4.3.3")
     implementation ("com.google.maps.android:android-maps-utils:0.5")
+
+    /// zxing qr code ///
+    implementation ("com.google.zxing:core:3.3.3")
 }
