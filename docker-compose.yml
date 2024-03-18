@@ -12,6 +12,19 @@ services:
       - ./services/user-management:/app # Mount the current directory to the container's /app directory (for live reloading)
     environment:
       - FLASK_ENV=development # Set the Flask environment to development
+
+  image-processing:
+    build:
+      context: ./services/image-processing
+      args:
+        DOCKER_BUILDKIT: 1
+    ports:
+      - "5003:5003"
+    volumes:
+      - ./services/image-processing:/app
+    environment:
+      - FLASK_ENV=development
+  
   activity-management:
     build:
       context: ./services/activity-management
