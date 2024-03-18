@@ -51,7 +51,7 @@ interface ApiService {
 fun createApiService(): ApiService {
     val gson = GsonBuilder().setLenient().create() // Enable lenient parsing
     val retrofit = Retrofit.Builder()
-        .baseUrl("http://192.168.1.177:5000/")
+        .baseUrl(MainActivity.RECYCLING_CENTER_BASE_URL)
         .addConverterFactory(GsonConverterFactory.create(gson))
         .build()
 
