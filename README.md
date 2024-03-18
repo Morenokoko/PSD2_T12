@@ -6,12 +6,14 @@ EcoRanger App: Sustainable Waste Management
 
 ### Setting up the Kotlin Frontend
 
-Follow [this guide](https://developers.google.com/maps/documentation/android-sdk/get-api-key) to obtain an API key. &lt;br&gt; If you wish to restrict your api key, you may find the package name and SHA-1 using these steps:
+Follow [this guide](https://developers.google.com/maps/documentation/android-sdk/get-api-key) to obtain an API key. </br>
+If you wish to restrict your api key, you may find the package name and SHA-1 using these steps:
 
 - Package name: com.example.ecoranger
 - SHA-1: Open android directory in to the terminal then enter the `./gradlew signingReport` command.
 
-Lastly, in your `local.properties` file of your android project root folder, add your api key like so: `GOOGLE_MAPS_API_KEY=YOUR_API_KEY`.&lt;br&gt; Your project should then be able to run smoothly.
+Lastly, in your `local.properties` file of your android project root folder, add your api key like so: `GOOGLE_MAPS_API_KEY=YOUR_API_KEY`.</br>
+Your project should then be able to run smoothly.
 
 ## Quickstart
 
