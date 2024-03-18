@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import android.Manifest
 import android.content.Context
+import android.util.Log
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -53,6 +54,19 @@ import androidx.lifecycle.LifecycleOwner
 import android.provider.Settings
 import android.net.Uri
 import android.app.Activity
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.FabPosition
+import androidx.compose.runtime.LaunchedEffect
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Locale
+import androidx.core.content.ContextCompat
+
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -79,7 +93,7 @@ fun CameraPage(navController: NavHostController, selectedItem: MutableState<Int>
     Scaffold(
         bottomBar = { BottomNavigationBar(navController, selectedItem) },
         content = {
-            CameraPreview()
+            CameraPreview(navController)
         }
     )
 }
@@ -87,7 +101,7 @@ fun CameraPage(navController: NavHostController, selectedItem: MutableState<Int>
 @OptIn(ExperimentalPermissionsApi::class)
 @SuppressLint("UnsafeExperimentalUsageError")
 @Composable
-fun CameraPreview() {
+fun CameraPreview(navController: NavHostController) {
 //    val activity = (LocalContext.current as? Activity)
 //    val camera = remember { mutableStateOf<Camera?>(null) }
     val hasDeniedTwice = remember { mutableStateOf(false) }
@@ -98,7 +112,7 @@ fun CameraPreview() {
 
     // If camera permission is granted, start camera preview
     if (hasCameraPermission.status.isGranted) {
-        CameraContent()
+        CameraContent(navController)
     } else if (!hasDeniedTwice.value) {
         PermissionNotGrantedMessage { permissionLauncher.launch(Manifest.permission.CAMERA) }
     } else {
@@ -118,27 +132,76 @@ private fun navigateToAppSettings() {
 }
 
 @Composable
-private fun CameraContent() {
+private fun CameraContent(navController: NavHostController) {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
 
-    val context: Context = LocalContext.current
-    val lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
-    val cameraController: LifecycleCameraController =
-        remember { LifecycleCameraController(context) }
+    val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
+    val imageCapture = remember { ImageCapture.Builder().build() }
+
+    val previewView = remember { PreviewView(context) }
+    val preview = Preview.Builder().build().also {
+        it.setSurfaceProvider(previewView.surfaceProvider)
+    }
+
+    LaunchedEffect(cameraProviderFuture) {
+        val cameraProvider = cameraProviderFuture.get()
+        val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
+        try {
+            cameraProvider.unbindAll()
+            cameraProvider.bindToLifecycle(
+                lifecycleOwner,
+                cameraSelector,
+                preview,
+                imageCapture
+            )
+        } catch (exc: Exception) {
+            Log.e("CameraContent", "Use case binding failed", exc)
+        }
+    }
+
+    // Prepare to save captured images
+    val outputDirectory = getOutputDirectory(context)
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 text = { Text(text = "Take photo") },
-                onClick = { },
+                onClick = {
+                    // Capture the image and save it
+                    val photoFile = File(
+                        getOutputDirectory(context), "temp.jpg")
+                    val outputFileOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
+                    imageCapture.takePicture(
+                        outputFileOptions,
+                        ContextCompat.getMainExecutor(context),
+                        object : ImageCapture.OnImageSavedCallback {
+                            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                                Log.d("CameraPage", "Image saved: ${photoFile.absolutePath}")
+                                // Navigate to the results page or do something with the image
+                                navController.navigate("resultsPage")
+                            }
+
+                            override fun onError(exception: ImageCaptureException) {
+                                Log.e("CameraPage", "Image capture failed", exception)
+                            }
+                        }
+                    )
+                },
                 icon = {
                     Icon(
                         imageVector = Icons.Default.Camera,
                         contentDescription = "Camera capture icon"
                     )
-                }
+                },
+                modifier = Modifier
+                    .padding(all = 100.dp)
+                    .width(150.dp)
             )
-        }
+        },
+        floatingActionButtonPosition = FabPosition.Center,
     ) { paddingValues: PaddingValues ->
         Box(modifier = Modifier.fillMaxSize()) {
             AndroidView(
@@ -146,19 +209,24 @@ private fun CameraContent() {
                     .fillMaxSize()
                     .padding(paddingValues),
                 factory = { context ->
-                    PreviewView(context).apply {
+                    previewView.apply {
                         layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
                         setBackgroundColor(Color.BLACK)
                         implementationMode = PreviewView.ImplementationMode.COMPATIBLE
                         scaleType = PreviewView.ScaleType.FILL_START
-                    }.also { previewView ->
-                        previewView.controller = cameraController
-                        cameraController.bindToLifecycle(lifecycleOwner)
                     }
                 }
             )
         }
     }
+}
+
+fun getOutputDirectory(context: Context): File {
+    val mediaDir = context.externalMediaDirs.firstOrNull()?.let {
+        File(it, context.resources.getString(R.string.app_name)).apply { mkdirs() }
+    }
+    return if (mediaDir != null && mediaDir.exists())
+        mediaDir else context.filesDir
 }
 
 @Composable

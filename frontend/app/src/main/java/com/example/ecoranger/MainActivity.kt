@@ -84,6 +84,7 @@ fun MyApp(activity: MainActivity) {
         composable("page3") { CommunityPage(navController, selectedItem) }
         composable("page4") { ProfilePage(navController, selectedItem) { logoutUser() } }
         composable("recyclablesPage") { RecyclablesPage(navController) }
+        composable("resultsPage") { ResultsPage(navController, context) }
     }
 }
 
