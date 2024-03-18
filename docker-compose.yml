@@ -13,6 +13,18 @@ services:
     environment:
       - FLASK_ENV=development # Set the Flask environment to development
 
+  recycling-center:
+    build:
+      context: ./services/recycling-center
+      args:
+        DOCKER_BUILDKIT: 1
+    ports:
+      - "5002:5002"
+    volumes:
+      - ./services/recycling-center:/app
+    environment:
+      - FLASK_ENV=development
+
   image-processing:
     build:
       context: ./services/image-processing
