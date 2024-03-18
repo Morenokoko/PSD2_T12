@@ -19,7 +19,7 @@ services:
       args:
         DOCKER_BUILDKIT: 1
     ports:
-      - "5002:5000"
+      - "5002:5002"
     volumes:
       - ./services/recycling-center:/app
     environment:
@@ -31,7 +31,7 @@ services:
       args:
         DOCKER_BUILDKIT: 1
     ports:
-      - "5003:5000"
+      - "5003:5003"
     volumes:
       - ./services/image-processing:/app
     environment:
@@ -44,7 +44,7 @@ services:
       args:
         DOCKER_BUILDKIT: 1
     ports:
-      - "5004:5000" # Map the container port to your local machine (replace 8000 with your actual port)
+      - "5004:5004" # Map the container port to your local machine (replace 8000 with your actual port)
     volumes:
       - ./services/activity-management:/app # Mount the current directory to the container's /app directory (for live reloading)
     environment:

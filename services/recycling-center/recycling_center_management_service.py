@@ -140,7 +140,7 @@ if __name__ == '__main__':
     # app.run() will host the server on localhost e.g. http://127.0.0.1:5000, 
     # whereas, app.run(host=”0.0.0.0″) will host the server on machine’s IP address
     # app.run() 
-    app.run(host="0.0.0.0", debug=True)
+    app.run(host='0.0.0.0', port=5002)
 
 # DO NOT DELETE BELOW YET, WILL DELETE DURING CLEANUP
 
