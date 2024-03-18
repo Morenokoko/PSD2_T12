@@ -9,9 +9,6 @@ client = MongoClient("mongodb+srv://mrizqullahhafizh:bHjDatbWnaVsPnEZ@ecoranger.
 db = client.recycling_centers_db
 collection = db.dataset
 
-# Define the base URL
-RECYCLING_CENTER_BASE_URL = "http://10.0.2.2:5002"
-
 # Endpoint to get all recycling centers
 @app.route('/recycling_centers', methods=['GET'])
 def get_recycling_centers():
