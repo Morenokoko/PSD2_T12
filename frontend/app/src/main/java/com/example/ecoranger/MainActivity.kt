@@ -41,6 +41,7 @@ class MainActivity : ComponentActivity() {
         const val CONTENT_MANAGEMENT_BASE_URL = "http://10.0.2.2:5001"
         const val RECYCLING_CENTER_BASE_URL = "http://10.0.2.2:5002"
         const val IMAGE_PROCESSING_BASE_URL = "http://10.0.2.2:5003"
+        const val ACTIVITY_MANAGEMENT_BASE_URL = "http://10.0.2.2:5004"
         // Add more base URLs for other microservices
     }
     override fun onCreate(savedInstanceState: Bundle?) {
