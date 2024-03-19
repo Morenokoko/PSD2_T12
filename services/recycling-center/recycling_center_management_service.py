@@ -1,6 +1,7 @@
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from pymongo import MongoClient
+from geopy.distance import geodesic
 
 app = Flask(__name__)
 
@@ -8,6 +9,28 @@ app = Flask(__name__)
 client = MongoClient("mongodb+srv://mrizqullahhafizh:bHjDatbWnaVsPnEZ@ecoranger.s4hhqha.mongodb.net/?retryWrites=true&w=majority&appName=EcoRanger")
 db = client.recycling_centers_db
 collection = db.dataset
+
+# Function to calculate distance between two points using Haversine formula
+def calculate_distance(lat1, lon1, lat2, lon2):
+    return geodesic((lat1, lon1), (lat2, lon2)).meters
+
+# Endpoint to get recycling bins within 1km radius of given lat and lon
+@app.route('/recycling_bins_500m', methods=['GET'])
+def get_recycling_bins():
+    try:
+        lat = float(request.args.get('lat'))
+        lon = float(request.args.get('lon'))
+    except ValueError:
+        return jsonify({'error': 'Invalid latitude or longitude provided'}), 400
+
+    nearby_bins = []
+    for bin_data in collection.find({}, {'_id': 0}):
+        bin_lat = bin_data['latitude']
+        bin_lon = bin_data['longitude']
+        if calculate_distance(lat, lon, bin_lat, bin_lon) <= 500: # 500 meters
+            nearby_bins.append(bin_data)
+
+    return jsonify(nearby_bins)
 
 # Endpoint to get all recycling centers
 @app.route('/recycling_centers', methods=['GET'])
@@ -29,63 +52,3 @@ if __name__ == '__main__':
     # whereas, app.run(host=”0.0.0.0″) will host the server on machine’s IP address
     # app.run() 
     app.run(host='0.0.0.0', port=5002)
-
-# DO NOT DELETE BELOW YET, WILL DELETE DURING CLEANUP
-
-# import os
-# from flask import Flask, jsonify
-# import json
-# from bs4 import BeautifulSoup
-# from pymongo import MongoClient
-
-
-# app = Flask(__name__)
-
-
-# # Construct the relative path to the GeoJSON file
-# relative_path = 'RecyclingBins.geojson'
-
-# # Get the absolute path of the GeoJSON file
-# geojson_file = os.path.join(os.path.dirname(__file__), relative_path)
-
-# # Load recycling center data from GeoJSON file
-# with open(geojson_file, 'r') as f:
-#     recycling_centers = json.load(f)['features']
-
-# def parse_description(description):
-#     # Parse the HTML-like string
-#     soup = BeautifulSoup(description, 'html.parser')
-#     properties = {}
-#     # Extract attribute-value pairs
-#     for row in soup.find_all('tr'):
-#         cols = row.find_all(['th', 'td'])
-#         if len(cols) == 2:
-#             key = cols[0].text.strip()
-#             value = cols[1].text.strip()
-#             properties[key] = value
-#     return properties
-
-# # Format the recycling center features
-# for center in recycling_centers:
-#     if 'properties' in center:
-#         if 'Description' in center['properties']:
-#             description_properties = parse_description(center['properties']['Description'])
-#             del center['properties']['Description']
-#             center['properties'].update(description_properties)
-
-# # Endpoint to get all recycling centers
-# @app.route('/recycling_centers', methods=['GET'])
-# def get_recycling_centers():
-#     return jsonify(recycling_centers)
-
-# # Endpoint to get a specific recycling center by ID
-# @app.route('/recycling_centers/<int:center_id>', methods=['GET'])
-# def get_recycling_center(center_id):
-#     center = next((center for center in recycling_centers if center['properties']['id'] == center_id), None)
-#     if center:
-#         return jsonify(center)
-#     else:
-#         return jsonify({'error': 'Recycling center not found'}), 404
-
-# if __name__ == '__main__':
-#     app.run(debug=True)

@@ -2,7 +2,7 @@ package com.example.ecoranger.data
 
 
 data class Bin(
-    val INC_CRC: String?,
+    val id: String?,
     val latitude: Double,
     val longitude: Double,
     val ADDRESSBLOCKHOUSENUMBER: String?,

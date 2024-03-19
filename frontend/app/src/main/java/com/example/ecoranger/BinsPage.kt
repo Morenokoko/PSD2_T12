@@ -34,20 +34,27 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Query
 
 private const val REQUEST_LOCATION_PERMISSIONS = 123
 
 interface ApiService {
     // Define your API endpoints here
-    @GET("recycling_centers")
-    suspend fun getRecyclingCenters(): List<Bin>
+    @GET("recycling_bins_500m")
+//    suspend fun getRecyclingCenters(): List<Bin>
+    suspend fun getRecyclingBins(
+        @Query("lat") lat: Double,
+        @Query("lon") lon: Double
+    ): List<Bin>
 }
+
 fun createApiService(): ApiService {
     val gson = GsonBuilder().setLenient().create() // Enable lenient parsing
     val retrofit = Retrofit.Builder()
@@ -73,22 +80,6 @@ fun BinsPage(navController: NavHostController, selectedItem: MutableState<Int>) 
     var userPosition by remember { mutableStateOf<LatLng?>(null) }
     val apiService = remember { createApiService() }
     var binsList by remember { mutableStateOf<List<Bin>>(emptyList()) }
-
-    // Call the API to retrieve the binsList when the page is launched
-    LaunchedEffect(Unit) {
-        coroutineScope.launch {
-            try {
-                val response = apiService.getRecyclingCenters()
-                withContext(Dispatchers.Main) {
-                    binsList = response
-                    Log.d("API_SUCCESS", "Bins list retrieved successfully: $binsList")
-                }
-            } catch (e: Exception) {
-                // Handle errors
-                Log.e("API_ERROR", "Error fetching bins list: ${e.message}", e)
-            }
-        }
-    }
 
     // Get user's location and update the camera position
     LaunchedEffect(Unit) {
@@ -124,13 +115,49 @@ fun BinsPage(navController: NavHostController, selectedItem: MutableState<Int>) 
 
                 coroutineScope.launch {
                     // adjust the zoom value as needed: 0f being the farthest zoom and 21f being the closest zoom
-                    cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(userLatLng, 16f))
+                    cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(userLatLng, 17f))
+                    try {
+                        userPosition?.let { position ->
+                            val response =
+                                apiService.getRecyclingBins(position.latitude, position.longitude)
+                            withContext(Dispatchers.Main) {
+                                binsList = response
+                                Log.d("API_SUCCESS", "Bins list retrieved successfully: $binsList")
+                            }
+                        }
+                    } catch (e: Exception) {
+                        // Handle errors
+                        Log.e("API_ERROR", "Error fetching bins list: ${e.message}", e)
+                    }
                 }
             }
         } catch (e: Exception) {
             // Handle exceptions
         }
     }
+
+    LaunchedEffect(cameraPositionState.isMoving) {
+        Log.d("CAMERA", "camera position changed")
+        delay(1000) // delay for 1s to make sure user is not moving camera anymore
+
+        // Check if the camera is still not moving after 2 seconds
+        if (!cameraPositionState.isMoving) {
+            val centerLatLng = cameraPositionState.position.target
+
+            // Fetch bins near the new center position
+            try {
+                val response = apiService.getRecyclingBins(centerLatLng.latitude, centerLatLng.longitude)
+                withContext(Dispatchers.Main) {
+                    binsList = response
+                    Log.d("API_SUCCESS", "Bins list retrieved successfully: $binsList")
+                }
+            } catch (e: Exception) {
+                // Handle errors
+                Log.e("API_ERROR", "Error fetching bins list: ${e.message}", e)
+            }
+        }
+    }
+
     BackHandler(
         onBackPressed = {
             exitDialogShown.value = true
