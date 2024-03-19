@@ -46,7 +46,38 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Alignment
+import com.google.gson.GsonBuilder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.ResponseBody
+import retrofit2.Call
+import retrofit2.Converter
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.Headers
+import retrofit2.http.Multipart
+import retrofit2.http.POST
+import retrofit2.http.Part
+import java.io.File
+import java.lang.reflect.Type
 
+
+interface QrApiService {
+    @Headers("Content-Type: text/plain")
+    @POST("/api/check_address")
+    suspend fun checkAddress(@Body address: RequestBody): Response<String>
+}
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -73,7 +104,7 @@ fun ScanQrPage(navController: NavHostController, selectedItem: MutableState<Int>
     Scaffold(
         bottomBar = { BottomNavigationBar(navController, selectedItem) },
         content = {
-            CameraPreview()
+            QrCameraPreview(navController)
         }
     )
 }
@@ -81,7 +112,7 @@ fun ScanQrPage(navController: NavHostController, selectedItem: MutableState<Int>
 @OptIn(ExperimentalPermissionsApi::class)
 @SuppressLint("UnsafeExperimentalUsageError")
 @Composable
-fun CameraPreview() {
+fun QrCameraPreview(navController: NavHostController) {
 //    val activity = (LocalContext.current as? Activity)
 //    val camera = remember { mutableStateOf<Camera?>(null) }
     val hasDeniedTwice = remember { mutableStateOf(false) }
@@ -92,7 +123,7 @@ fun CameraPreview() {
 
     // If camera permission is granted, start camera preview
     if (hasCameraPermission.status.isGranted) {
-        CameraContent()
+        CameraContent(navController)
     } else if (!hasDeniedTwice.value) {
         PermissionNotGrantedMessage { permissionLauncher.launch(Manifest.permission.CAMERA) }
     } else {
@@ -111,8 +142,35 @@ private fun navigateToAppSettings() {
     LocalContext.current.startActivity(intent)
 }
 
+class ToStringConverterFactory : Converter.Factory() {
+    override fun responseBodyConverter(
+        type: Type,
+        annotations: Array<Annotation>,
+        retrofit: Retrofit
+    ): Converter<ResponseBody, *>? {
+        // Check if the expected response type is a String, return a converter if so
+        if (String::class.java == type) {
+            return Converter<ResponseBody, String> { responseBody -> responseBody.string() }
+        }
+        // Return null to continue searching for other converters if the type is not String
+        return null
+    }
+}
+
 @Composable
-private fun CameraContent() {
+private fun CameraContent(navController: NavHostController) {
+
+    var lastApiCallTime = 0L  // Initialize to 0
+
+    // Set up Retrofit
+    val gson = GsonBuilder().create()
+    val retrofit = Retrofit.Builder()
+        .baseUrl(MainActivity.ACTIVITY_MANAGEMENT_BASE_URL) // Replace <your_server_ip> with your server's IP address
+        .addConverterFactory(ToStringConverterFactory())
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    val qrApiService = retrofit.create(QrApiService::class.java)
 
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -172,7 +230,33 @@ private fun CameraContent() {
                         QRCodeAnalyzer { result ->
                             result?.let {
                                 code = it
+                                val requestBody = code.toRequestBody("text/plain".toMediaType())
                                 Log.d("QRCodeAnalyzer", "Detected QR Code: $code")
+
+                                val currentTime = System.currentTimeMillis()
+                                if (currentTime - lastApiCallTime >= 10000) {  // 5000 milliseconds = 5 seconds
+                                    // Update the last API call time
+                                    lastApiCallTime = currentTime
+
+                                    // Proceed with your API call here
+                                    CoroutineScope(Dispatchers.IO).launch {
+                                        val response = qrApiService.checkAddress(requestBody)
+                                        Log.d("response", "rrr: $response")
+                                        if (response.isSuccessful && response.body() != null) {
+                                            val address = response.body()!!
+                                            withContext(Dispatchers.Main) {
+                                                // Handle your successful response, e.g., navigate to a new page
+                                                Log.d("API Success", "Address correct")
+                                                navController.navigate("page5")
+                                            }
+                                        } else {
+                                            Log.d("API Error", "Address not found or error in API")
+                                        }
+                                    }
+                                } else {
+                                    // If less than 5 seconds have passed since the last API call, you might want to ignore this scan or handle it differently
+                                    Log.d("QRCodeAnalyzer", "API call skipped to maintain the 5-second interval")
+                                }
                             }
                         }
                     )

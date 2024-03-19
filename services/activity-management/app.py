@@ -21,7 +21,7 @@ def check_address():
     if not address_to_check:
         return 'No address provided', 400
 
-    address_exists = dataset_collection.find_one({'ADDRESSPOSTALCODE': address_to_check}, {'_id': 0})
+    address_exists = dataset_collection.find_one({'ADDRESSSTREETNAME': address_to_check}, {'_id': 0})
 
     if address_exists:
         street_name = address_exists['ADDRESSSTREETNAME']
