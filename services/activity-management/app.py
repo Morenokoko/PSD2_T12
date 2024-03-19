@@ -9,6 +9,27 @@ app = Flask(__name__)
 client = MongoClient('mongodb+srv://mrizqullahhafizh:bHjDatbWnaVsPnEZ@ecoranger.s4hhqha.mongodb.net/?retryWrites=true&w=majority&appName=EcoRanger')
 db = client['activity-management']
 activities_collection = db['activities']
+dbdataset = client.recycling_centers_db
+dataset_collection = dbdataset.dataset
+
+@app.route('/api/check_address', methods=['POST'])
+def check_address():
+    # Read the data as plain text
+    address_to_check = request.get_data(as_text=True)
+    print(address_to_check)
+
+    if not address_to_check:
+        return 'No address provided', 400
+
+    address_exists = dataset_collection.find_one({'ADDRESSPOSTALCODE': address_to_check}, {'_id': 0})
+
+    if address_exists:
+        street_name = address_exists['ADDRESSSTREETNAME']
+        block_number = address_exists['ADDRESSBLOCKHOUSENUMBER']
+        address_formatted = f"{street_name} BLK {block_number}"
+        return address_formatted, 200
+    else:
+        return 'Address not found', 404
 
 @app.route('/api/activities', methods=['GET'])
 def get_activities():
