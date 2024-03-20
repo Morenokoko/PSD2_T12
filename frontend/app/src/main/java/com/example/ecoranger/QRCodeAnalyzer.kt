@@ -1,6 +1,8 @@
 package com.example.ecoranger
 
+import android.content.Context
 import android.graphics.ImageFormat
+import android.widget.Toast
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import com.google.zxing.*
@@ -8,6 +10,7 @@ import com.google.zxing.common.HybridBinarizer
 import java.nio.ByteBuffer
 
 class QRCodeAnalyzer(
+    private val context: Context,
     private val onQrCodeScanned: (result: String?) -> Unit
 ) : ImageAnalysis.Analyzer {
 
@@ -44,6 +47,13 @@ class QRCodeAnalyzer(
                 image.close()
             }
         }
+    }
+
+    private fun showInvalidQRCodePopup() {
+        // Display a popup on the Android device to show "Invalid QR Code, please try again."
+        // You can use AlertDialog, Toast, or any other UI element for displaying the message.
+        // Here, I'm using a simple Toast message.
+        Toast.makeText(context, "Invalid QR Code, please try again.", Toast.LENGTH_SHORT).show()
     }
 
     private fun ByteBuffer.toByteArray(): ByteArray {
