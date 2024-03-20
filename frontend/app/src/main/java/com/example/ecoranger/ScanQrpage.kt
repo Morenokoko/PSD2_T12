@@ -227,7 +227,7 @@ private fun CameraContent(navController: NavHostController) {
                         .build()
                     imageAnalysis.setAnalyzer(
                         ContextCompat.getMainExecutor(context),
-                        QRCodeAnalyzer { result ->
+                        QRCodeAnalyzer(context) { result ->
                             result?.let {
                                 code = it
                                 val requestBody = code.toRequestBody("text/plain".toMediaType())

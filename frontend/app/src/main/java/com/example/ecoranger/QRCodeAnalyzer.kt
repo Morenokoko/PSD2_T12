@@ -8,6 +8,9 @@ import androidx.camera.core.ImageProxy
 import com.google.zxing.*
 import com.google.zxing.common.HybridBinarizer
 import java.nio.ByteBuffer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class QRCodeAnalyzer(
     private val context: Context,
@@ -17,6 +20,9 @@ class QRCodeAnalyzer(
     companion object {
         private val SUPPORTED_IMAGE_FORMATS = listOf(ImageFormat.YUV_420_888, ImageFormat.YUV_422_888, ImageFormat.YUV_444_888)
     }
+
+    private var lastErrorShownTime = 0L // Track the time when the error message was last shown
+    private val errorDisplayInterval = 10000L // Set the interval between error messages in milliseconds
 
     override fun analyze(image: ImageProxy) {
         if (image.format in SUPPORTED_IMAGE_FORMATS) {
@@ -43,6 +49,7 @@ class QRCodeAnalyzer(
                 onQrCodeScanned(result.text)
             } catch (e: Exception) {
                 e.printStackTrace()
+                    showInvalidQRCodePopup()
             } finally {
                 image.close()
             }
@@ -50,10 +57,17 @@ class QRCodeAnalyzer(
     }
 
     private fun showInvalidQRCodePopup() {
-        // Display a popup on the Android device to show "Invalid QR Code, please try again."
-        // You can use AlertDialog, Toast, or any other UI element for displaying the message.
-        // Here, I'm using a simple Toast message.
-        Toast.makeText(context, "Invalid QR Code, please try again.", Toast.LENGTH_SHORT).show()
+        // Get the current time
+        val currentTime = System.currentTimeMillis()
+
+        // Check if enough time has passed since the last error message was shown
+        if (currentTime - lastErrorShownTime >= errorDisplayInterval) {
+            // If enough time has passed, show the error message
+            CoroutineScope(Dispatchers.Main).launch {
+                Toast.makeText(context, "Invalid QR Code, please try again.", Toast.LENGTH_SHORT).show()
+                lastErrorShownTime = currentTime // Update the last error shown time
+            }
+        }
     }
 
     private fun ByteBuffer.toByteArray(): ByteArray {
