@@ -34,7 +34,7 @@ def infer_image():
         if not high_confidence_classes:
             return jsonify('invalid')
         else:
-            return jsonify(high_confidence_classes)
+            return jsonify(', '.join(high_confidence_classes))
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
