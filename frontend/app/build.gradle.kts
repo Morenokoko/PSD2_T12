@@ -106,5 +106,6 @@ dependencies {
 
     /// zxing qr code ///
     implementation ("com.journeyapps:zxing-android-embedded:4.1.0")
-    implementation ("com.google.zxing:core:3.3.3")
+//    implementation ("com.google.zxing:core:3.3.3")
+    implementation ("com.google.zxing:core:3.4.1")
 }
