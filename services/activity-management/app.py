@@ -2,8 +2,10 @@ from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from bson import ObjectId
 from datetime import datetime
+from prometheus_flask_exporter import PrometheusMetrics
 
 app = Flask(__name__)
+metrics = PrometheusMetrics(app)
 
 # MongoDB Atlas connection
 client = MongoClient('mongodb+srv://mrizqullahhafizh:bHjDatbWnaVsPnEZ@ecoranger.s4hhqha.mongodb.net/?retryWrites=true&w=majority&appName=EcoRanger')
