@@ -1,22 +1,47 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  annotations:
+    kompose.cmd: C:\kompose\kompose.exe convert
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: user-management
   name: user-management
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: user-management
+      io.kompose.service: user-management
+  strategy:
+    type: Recreate
   template:
     metadata:
+      annotations:
+        kompose.cmd: C:\kompose\kompose.exe convert
+        kompose.version: 1.31.2 (a92241f79)
+      creationTimestamp: null
       labels:
-        app: user-management
+        io.kompose.network/psd2-t12-default: "true"
+        io.kompose.service: user-management
     spec:
       containers:
-        - name: user-management
-          image: user-management:latest
-          ports:
-            - containerPort: 5000
-          env:
+        - env:
             - name: FLASK_ENV
               value: development
+          image: mrizqullah/user-management:latest
+          name: user-management
+          ports:
+            - containerPort: 5000
+              hostPort: 5000
+              protocol: TCP
+          resources: {}
+          # volumeMounts:
+          #   - mountPath: /app
+          #     name: user-management-claim0
+      restartPolicy: Always
+      # volumes:
+      #   - name: user-management-claim0
+      #     persistentVolumeClaim:
+      #       claimName: user-management-claim0
+status: {}

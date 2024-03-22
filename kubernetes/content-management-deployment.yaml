@@ -6,13 +6,13 @@ metadata:
     kompose.version: 1.31.2 (a92241f79)
   creationTimestamp: null
   labels:
-    io.kompose.service: activity-management
-  name: activity-management
+    io.kompose.service: content-management
+  name: content-management
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: activity-management
+      io.kompose.service: content-management
   strategy:
     type: Recreate
   template:
@@ -23,25 +23,25 @@ spec:
       creationTimestamp: null
       labels:
         io.kompose.network/psd2-t12-default: "true"
-        io.kompose.service: activity-management
+        io.kompose.service: content-management
     spec:
       containers:
         - env:
             - name: FLASK_ENV
               value: development
-          image: mrizqullah/activity-management:latest
-          name: activity-management
+          image: mrizqullah/content-management:latest
+          name: content-management
           ports:
-            - containerPort: 5004
-              hostPort: 5004
+            - containerPort: 5001
+              hostPort: 5001
               protocol: TCP
           resources: {}
           # volumeMounts:
           #   - mountPath: /app
-          #     name: activity-management-claim0
+          #     name: content-management-claim0
       restartPolicy: Always
       # volumes:
-      #   - name: activity-management-claim0
+      #   - name: content-management-claim0
       #     persistentVolumeClaim:
-      #       claimName: activity-management-claim0
+      #       claimName: content-management-claim0
 status: {}
