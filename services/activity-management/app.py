@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from pymongo import MongoClient, DESCENDING
-from bson import ObjectId, json_util
+from bson import json_util
 from datetime import datetime
 from prometheus_flask_exporter import PrometheusMetrics
 
@@ -11,8 +11,8 @@ metrics = PrometheusMetrics(app)
 client = MongoClient('mongodb+srv://mrizqullahhafizh:bHjDatbWnaVsPnEZ@ecoranger.s4hhqha.mongodb.net/?retryWrites=true&w=majority&appName=EcoRanger')
 db = client['activity-management']
 activities_collection = db['activities']
-dbdataset = client.recycling_centers_db
-dataset_collection = dbdataset.dataset
+# dbdataset = client.recycling_centers_db
+# dataset_collection = dbdataset.dataset
 
 # @app.route('/api/check_address', methods=['POST'])
 # def check_address():

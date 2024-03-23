@@ -1,8 +1,135 @@
-from flask import Flask, jsonify
+from flask import Flask, request, jsonify
 from prometheus_flask_exporter import PrometheusMetrics
+from bson import ObjectId, json_util
+from pymongo import MongoClient, DESCENDING
+from datetime import datetime
 
 app = Flask(__name__)
 metrics = PrometheusMetrics(app)
+
+# MongoDB Atlas connection
+client = MongoClient('mongodb+srv://mrizqullahhafizh:bHjDatbWnaVsPnEZ@ecoranger.s4hhqha.mongodb.net/?retryWrites=true&w=majority&appName=EcoRanger')
+db = client['content-management']
+community_collection = db['community-posts']
+userdb = client['user-management']
+users_collection = userdb['users']
+
+
+@app.route('/api/create_community_post', methods=['POST'])
+def create_community_post():
+    data = request.get_json()
+    userId = data['userId']
+    title = data['title']
+    description = data['description']
+
+    # Retrieve user information based on userId
+    user = users_collection.find_one({"_id": ObjectId(userId)})
+    if user:
+        username = user['username']
+    else:
+        return jsonify({'error': 'User not found'}), 404
+    
+    post = {
+        'userId': userId,
+        'username': username,
+        'title': title,
+        'description': description,
+        'dateTime': datetime.now(),
+        'numComments': 0
+    }
+    result = community_collection.insert_one(post)
+    post_id = str(result.inserted_id)
+    return jsonify({'message': 'Post created successfully', 'poat': post_id}), 201
+
+
+@app.route('/api/community', methods=['GET'])
+def get_community_posts():
+    posts = community_collection.find().sort("dateTime", DESCENDING)
+
+    if posts:
+        posts_list = []
+        for post in posts:
+            title = post.get('title', '')
+            description = post.get('description', '')
+            userId = post.get('userId', '')
+            username = post.get('username', '')
+            numComments = post.get('numComments', 0)
+            timestamp = post.get('dateTime', None)  # Assuming timestamp is stored as a datetime object
+
+            if timestamp:
+                # Format date and time
+                datetime_str = timestamp.strftime("%d %b %Y %I:%M %p")
+
+                # Construct response object for each activity
+                post_obj = {
+                    "_id": str(post['_id']),
+                    "title": title,
+                    "description": description,
+                    "userId": userId,
+                    "username": username,
+                    "dateTime": datetime_str,
+                    "numComments": numComments
+                }
+                posts_list.append(post_obj)
+
+        # Return the list of activities as JSON
+        return json_util.dumps(posts_list), 200
+    else:
+        return 'No posts found', 404
+
+@app.route('/api/community/<post_id>', methods=['GET'])
+def get_community_post_by_id(post_id):
+    post = community_collection.find_one({"_id": ObjectId(post_id)})
+    if post:
+        title = post.get('title', '')
+        description = post.get('description', '')
+        userId = post.get('userId', '')
+        username = post.get('username', '')
+        numComments = post.get('numComments', 0)
+        timestamp = post.get('dateTime', None)  
+
+        if timestamp:
+            datetime_str = timestamp.strftime("%d %b %Y %I:%M %p")
+
+            post_obj = {
+                "_id": str(post['_id']),
+                "title": title,
+                "description": description,
+                "userId": userId,
+                "username": username,
+                "dateTime": datetime_str,
+                "numComments": numComments
+            }
+            return json_util.dumps(post_obj), 200
+    return 'Post not found', 404
+
+@app.route('/api/community/<post_id>', methods=['PUT'])
+def update_community_post(post_id):
+    data = request.get_json()
+    title = data.get('title', '')
+    description = data.get('description', '')
+
+    updated_post = {
+        "title": title,
+        "description": description,
+        "dateTime": datetime.now()
+    }
+
+    result = community_collection.update_one({"_id": ObjectId(post_id)}, {"$set": updated_post})
+
+    if result.modified_count > 0:
+        return jsonify({'message': 'Post updated successfully'}), 200
+    else:
+        return 'Post not found', 404
+
+@app.route('/api/community/<post_id>', methods=['DELETE'])
+def delete_community_post(post_id):
+    result = community_collection.delete_one({"_id": ObjectId(post_id)})
+    if result.deleted_count > 0:
+        return jsonify({'message': 'Post deleted successfully'}), 200
+    else:
+        return 'Post not found', 404
+
 
 NEWS_DIRECTORY = "news/"
 

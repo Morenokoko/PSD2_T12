@@ -34,6 +34,7 @@ class MainActivity : ComponentActivity() {
         const val ACTIVITY_MANAGEMENT_BASE_URL = "http://10.0.2.2:5004"
         // Add more base URLs for other microservices
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -80,6 +81,12 @@ fun MyApp(activity: MainActivity) {
         composable("page5") { ObjectDetectionPage(navController, selectedItem, cameraAddress) }
         composable("recyclablesPage") { RecyclablesPage(navController) }
         composable("resultsPage") { ResultsPage(navController, context, cameraAddress) }
+        composable("createPostPage") { CreateCommPage(navController) }
+        composable("viewPostPage/{id}") { backStackEntry ->
+            val postId = backStackEntry.arguments?.getString("id")
+            ViewCommPage(navController, postId)
+//            ViewCommPage(navController)
+        }
     }
 }
 
