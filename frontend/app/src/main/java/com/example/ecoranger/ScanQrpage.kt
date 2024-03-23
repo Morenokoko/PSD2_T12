@@ -43,45 +43,44 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.core.content.ContextCompat
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Alignment
-import com.google.gson.GsonBuilder
+import androidx.compose.ui.text.TextStyle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody
-import retrofit2.Call
 import retrofit2.Converter
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
-import retrofit2.http.GET
 import retrofit2.http.Headers
-import retrofit2.http.Multipart
 import retrofit2.http.POST
-import retrofit2.http.Part
-import java.io.File
 import java.lang.reflect.Type
 
-
-interface QrApiService {
+interface RecyclingCenterApiService {
     @Headers("Content-Type: text/plain")
-    @POST("/api/check_address")
-    suspend fun checkAddress(@Body address: RequestBody): Response<String>
+    @POST("/recycling_centers/get_bin_by_id")
+    suspend fun getRecyclingCenter(@Body address: RequestBody): Response<String>
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun ScanQrPage(navController: NavHostController, selectedItem: MutableState<Int>) {
+fun ScanQrPage(
+    navController: NavHostController,
+    selectedItem: MutableState<Int>,
+    cameraAddress: MutableState<String>
+) {
     val exitDialogShown = remember { mutableStateOf(false) }
 
     BackHandler(
@@ -104,7 +103,9 @@ fun ScanQrPage(navController: NavHostController, selectedItem: MutableState<Int>
     Scaffold(
         bottomBar = { BottomNavigationBar(navController, selectedItem) },
         content = {
-            QrCameraPreview(navController)
+            QrCameraPreview(
+                navController, cameraAddress
+            )
         }
     )
 }
@@ -112,7 +113,10 @@ fun ScanQrPage(navController: NavHostController, selectedItem: MutableState<Int>
 @OptIn(ExperimentalPermissionsApi::class)
 @SuppressLint("UnsafeExperimentalUsageError")
 @Composable
-fun QrCameraPreview(navController: NavHostController) {
+fun QrCameraPreview(
+    navController: NavHostController,
+    cameraAddress: MutableState<String>
+) {
 //    val activity = (LocalContext.current as? Activity)
 //    val camera = remember { mutableStateOf<Camera?>(null) }
     val hasDeniedTwice = remember { mutableStateOf(false) }
@@ -123,17 +127,17 @@ fun QrCameraPreview(navController: NavHostController) {
 
     // If camera permission is granted, start camera preview
     if (hasCameraPermission.status.isGranted) {
-        CameraContent(navController)
+        CameraContent(navController, cameraAddress)
     } else if (!hasDeniedTwice.value) {
         PermissionNotGrantedMessage { permissionLauncher.launch(Manifest.permission.CAMERA) }
     } else {
-        navigateToAppSettings()
+        NavigateToAppSettings()
     }
 
 }
 
 @Composable
-private fun navigateToAppSettings() {
+private fun NavigateToAppSettings() {
     val intent = Intent().apply {
         action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
         data = Uri.fromParts("package", LocalContext.current.packageName, null)
@@ -157,20 +161,20 @@ class ToStringConverterFactory : Converter.Factory() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CameraContent(navController: NavHostController) {
+private fun CameraContent(navController: NavHostController, cameraAddress: MutableState<String>) {
 
     var lastApiCallTime = 0L  // Initialize to 0
 
     // Set up Retrofit
-    val gson = GsonBuilder().create()
     val retrofit = Retrofit.Builder()
-        .baseUrl(MainActivity.ACTIVITY_MANAGEMENT_BASE_URL) // Replace <your_server_ip> with your server's IP address
+        .baseUrl(MainActivity.RECYCLING_CENTER_BASE_URL) // Replace <your_server_ip> with your server's IP address
         .addConverterFactory(ToStringConverterFactory())
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    val qrApiService = retrofit.create(QrApiService::class.java)
+    val qrApiService = retrofit.create(RecyclingCenterApiService::class.java)
 
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -199,13 +203,20 @@ private fun CameraContent(navController: NavHostController) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = { // Define the topBar content here
-            Text(
-                text = code,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(32.dp)
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF254d32)),
+                title = {
+                    Text(
+                        text = "Scan the QR Code on the recycling bin",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentSize(Alignment.Center),
+                        style = TextStyle(
+                            color = Color.White,
+                            fontSize = 20.sp, fontWeight = FontWeight.Bold
+                        )
+                    )
+                }
             )
         }
     ) { paddingValues ->
@@ -240,13 +251,13 @@ private fun CameraContent(navController: NavHostController) {
 
                                     // Proceed with your API call here
                                     CoroutineScope(Dispatchers.IO).launch {
-                                        val response = qrApiService.checkAddress(requestBody)
+                                        val response = qrApiService.getRecyclingCenter(requestBody)
                                         Log.d("response", "rrr: $response")
                                         if (response.isSuccessful && response.body() != null) {
-                                            val address = response.body()!!
+                                            cameraAddress.value = response.body()!!
+                                            Log.d("API Success", response.body()!!)
                                             withContext(Dispatchers.Main) {
-                                                // Handle your successful response, e.g., navigate to a new page
-                                                Log.d("API Success", "Address correct")
+                                                // navigate to ObjectDetectionCode page
                                                 navController.navigate("page5")
                                             }
                                         } else {
@@ -255,7 +266,10 @@ private fun CameraContent(navController: NavHostController) {
                                     }
                                 } else {
                                     // If less than 5 seconds have passed since the last API call, you might want to ignore this scan or handle it differently
-                                    Log.d("QRCodeAnalyzer", "API call skipped to maintain the 5-second interval")
+                                    Log.d(
+                                        "QRCodeAnalyzer",
+                                        "API call skipped to maintain the 5-second interval"
+                                    )
                                 }
                             }
                         }

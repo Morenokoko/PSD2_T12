@@ -3,51 +3,46 @@ package com.example.ecoranger
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.ecoranger.data.Bin
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.ResponseBody
-import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
-import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
@@ -69,7 +64,10 @@ interface ActivityApiService {
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun ResultsPage(navController: NavHostController, context: Context) { // Pass the Context as a parameter
+fun ResultsPage(
+    navController: NavHostController, context: Context,
+    cameraAddress: MutableState<String>
+) { // Pass the Context as a parameter
     // Set up Retrofit
     val gson = GsonBuilder().create()
     val retrofit = Retrofit.Builder()
@@ -86,8 +84,8 @@ fun ResultsPage(navController: NavHostController, context: Context) { // Pass th
 
     val activityApiService = retrofit2.create(ActivityApiService::class.java)
 
-    // State to hold the result
-    val resultText = remember { mutableStateOf("Results") }
+    val resultText = remember { mutableStateOf("") }
+    val isLoading = remember { mutableStateOf(true) }
 
     // Coroutine scope for launching the network request
     val coroutineScope = rememberCoroutineScope()
@@ -109,8 +107,8 @@ fun ResultsPage(navController: NavHostController, context: Context) { // Pass th
                     // Example of data for the new API request
                     val data = mapOf(
                         "user_id" to getUserIdFromStorage(context),
-                        "activity_type" to "test_activity",
-                        "points" to 10
+                        "activity_type" to cameraAddress.value,
+                        "points" to 50
                     )
                     // Launch coroutine for the additional API request
                     try {
@@ -119,41 +117,87 @@ fun ResultsPage(navController: NavHostController, context: Context) { // Pass th
                     } catch (e: Exception) {
                         Log.e("ActivityError", "Error creating activity: ${e.message}")
                     }
-                }else{
-                    Log.d("Result", "invalid")}
+                } else {
+                    Log.d("Result", "invalid")
+                }
             } catch (e: Exception) {
                 resultText.value = "Error: ${e.message}"
+            } finally {
+                isLoading.value = false // Set loading state to false after the API call completes
             }
         }
     }
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Back to Home") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigate("page0") }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                }
-            )
-        },
-        content = { padding ->
-            Box(modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)) {
-                Text(
-                    text = resultText.value,
-                    modifier = Modifier.padding(16.dp),
-                    style = TextStyle(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp,
-                        color = Color.Black
-                    )
-                )
-            }
+    if (isLoading.value) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator() // Show a circular progress indicator while loading
         }
-    )
+    } else {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF254d32)),
+                    title = {
+                        Text(
+                            text = "Back to Home",
+                            style = TextStyle(
+                                color = Color.White,
+                                fontSize = 20.sp, fontWeight = FontWeight.Bold
+                            )
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.navigate("page0") }) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back",
+                                tint = Color.White
+                            )
+                        }
+                    }
+                )
+            },
+            content = {paddingValues: PaddingValues ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .padding(top = 20.dp, start = 20.dp, end = 20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Recyclables detected:",
+                        style = TextStyle(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 24.sp,
+                            color = Color.Black
+                        )
+                    )
+                    Text(
+                        text = resultText.value,
+                        style = TextStyle(
+                            fontSize = 24.sp,
+                            color = Color.Black
+                        )
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = if (resultText.value != "invalid") {
+                            "You have earned 50 points"
+                        } else {
+                            "Please try again"
+                        },
+                        style = TextStyle(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 24.sp,
+                            color = Color.Black
+                        )
+                    )
+                }
+            }
+        )
+    }
 }
 
 

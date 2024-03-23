@@ -1,11 +1,8 @@
 package com.example.ecoranger
 
 import BackHandler
-import android.Manifest
-import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
-import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -26,13 +23,6 @@ import com.example.ecoranger.ui.theme.OnlyNotesTheme
 import androidx.compose.runtime.remember
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
-import androidx.core.app.ActivityCompat
-import androidx.navigation.NavGraph.Companion.findStartDestination
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.libraries.places.api.Places
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
 class MainActivity : ComponentActivity() {
     // Public static variables
@@ -62,6 +52,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MyApp(activity: MainActivity) {
+    val cameraAddress = remember { mutableStateOf("") }
     val navController = rememberNavController()
     val selectedItem = remember { mutableIntStateOf(0) }
     val context = activity.applicationContext
@@ -83,12 +74,12 @@ fun MyApp(activity: MainActivity) {
         composable("signUpPage") { SignUpPage(navController, context) }
         composable("page0") { HomePage(navController, selectedItem) }
         composable("page1") { BinsPage(navController, selectedItem) }
-        composable("page2") { ScanQrPage(navController, selectedItem) }
+        composable("page2") { ScanQrPage(navController, selectedItem, cameraAddress) }
         composable("page3") { CommunityPage(navController, selectedItem) }
         composable("page4") { ProfilePage(navController, selectedItem) { logoutUser() } }
-        composable("page5") { ObjectDetectionPage(navController, selectedItem) }
+        composable("page5") { ObjectDetectionPage(navController, selectedItem, cameraAddress) }
         composable("recyclablesPage") { RecyclablesPage(navController) }
-        composable("resultsPage") { ResultsPage(navController, context) }
+        composable("resultsPage") { ResultsPage(navController, context, cameraAddress) }
     }
 }
 

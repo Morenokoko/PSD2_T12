@@ -52,16 +52,27 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.graphics.Color as ComposeColor
+import androidx.compose.ui.text.font.FontWeight
 import java.io.File
 import androidx.core.content.ContextCompat
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun ObjectDetectionPage(navController: NavHostController, selectedItem: MutableState<Int>) {
+fun ObjectDetectionPage(
+    navController: NavHostController,
+    selectedItem: MutableState<Int>,
+    cameraAddress: MutableState<String>
+) {
     val exitDialogShown = remember { mutableStateOf(false) }
 
     BackHandler(
@@ -84,7 +95,7 @@ fun ObjectDetectionPage(navController: NavHostController, selectedItem: MutableS
     Scaffold(
         bottomBar = { BottomNavigationBar(navController, selectedItem) },
         content = {
-            CameraPreview(navController)
+            CameraPreview(navController,cameraAddress)
         }
     )
 }
@@ -92,7 +103,7 @@ fun ObjectDetectionPage(navController: NavHostController, selectedItem: MutableS
 @OptIn(ExperimentalPermissionsApi::class)
 @SuppressLint("UnsafeExperimentalUsageError")
 @Composable
-fun CameraPreview(navController: NavHostController) {
+fun CameraPreview(navController: NavHostController, cameraAddress: MutableState<String>) {
 //    val activity = (LocalContext.current as? Activity)
 //    val camera = remember { mutableStateOf<Camera?>(null) }
     val hasDeniedTwice = remember { mutableStateOf(false) }
@@ -103,17 +114,17 @@ fun CameraPreview(navController: NavHostController) {
 
     // If camera permission is granted, start camera preview
     if (hasCameraPermission.status.isGranted) {
-        CameraContent(navController)
+        CameraContent(navController, cameraAddress)
     } else if (!hasDeniedTwice.value) {
         PermissionNotGrantedMessage { permissionLauncher.launch(Manifest.permission.CAMERA) }
     } else {
-        navigateToAppSettings()
+        NavigateToAppSettings()
     }
 
 }
 
 @Composable
-private fun navigateToAppSettings() {
+private fun NavigateToAppSettings() {
     val intent = Intent().apply {
         action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
         data = Uri.fromParts("package", LocalContext.current.packageName, null)
@@ -122,8 +133,9 @@ private fun navigateToAppSettings() {
     LocalContext.current.startActivity(intent)
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CameraContent(navController: NavHostController) {
+private fun CameraContent(navController: NavHostController, cameraAddress: MutableState<String>) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -152,25 +164,44 @@ private fun CameraContent(navController: NavHostController) {
         }
     }
 
-    // Prepare to save captured images
-    val outputDirectory = getOutputDirectory(context)
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        topBar = { // Define the topBar content here
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = ComposeColor(0xFF254d32)),
+                title = {
+                    Text(
+                        text = cameraAddress.value,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentSize(Alignment.Center),
+                        style = TextStyle(
+                            color = ComposeColor.White,
+                            fontSize = 20.sp, fontWeight = FontWeight.Bold
+                        )
+                    )
+                }
+            )
+        },
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 text = { Text(text = "Take photo") },
                 onClick = {
                     // Capture the image and save it
                     val photoFile = File(
-                        getOutputDirectory(context), "temp.jpg")
-                    val outputFileOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
+                        getOutputDirectory(context), "temp.jpg"
+                    )
+                    val outputFileOptions =
+                        ImageCapture.OutputFileOptions.Builder(photoFile).build()
                     imageCapture.takePicture(
                         outputFileOptions,
                         ContextCompat.getMainExecutor(context),
                         object : ImageCapture.OnImageSavedCallback {
                             override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                                Log.d("ObjectDetectionPage", "Image saved: ${photoFile.absolutePath}")
+                                Log.d(
+                                    "ObjectDetectionPage",
+                                    "Image saved: ${photoFile.absolutePath}"
+                                )
                                 // Navigate to the results page or do something with the image
                                 navController.navigate("resultsPage")
                             }
@@ -199,7 +230,7 @@ private fun CameraContent(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues),
-                factory = { context ->
+                factory = {
                     previewView.apply {
                         layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
                         setBackgroundColor(Color.BLACK)
@@ -213,10 +244,10 @@ private fun CameraContent(navController: NavHostController) {
 }
 
 fun getOutputDirectory(context: Context): File {
-    val mediaDir = context.externalMediaDirs.firstOrNull()?.let {
+    val mediaDir = context.getExternalFilesDir(null)?.absolutePath.let { //.externalMediaDirs.firstOrNull()?
         File(it, context.resources.getString(R.string.app_name)).apply { mkdirs() }
     }
-    return if (mediaDir != null && mediaDir.exists())
+    return if (mediaDir.exists())
         mediaDir else context.filesDir
 }
 

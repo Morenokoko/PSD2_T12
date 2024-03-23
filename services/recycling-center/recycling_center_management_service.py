@@ -3,6 +3,7 @@ from flask import Flask, jsonify, request
 from pymongo import MongoClient
 from geopy.distance import geodesic
 from prometheus_flask_exporter import PrometheusMetrics
+from bson import ObjectId
 
 app = Flask(__name__)
 metrics = PrometheusMetrics(app)
@@ -40,15 +41,26 @@ def get_recycling_centers():
     recycling_centers = list(collection.find({}, {'_id': 0}))  # Exclude _id field from results
     return jsonify(recycling_centers)
 
-# Endpoint to get a specific recycling center by ID
-@app.route('/recycling_centers/<int:center_id>', methods=['GET'])
-def get_recycling_center(center_id):
-    center = collection.find_one({"id": center_id}, {'_id': 0})  # Exclude _id field from result
-    if center:
-        return jsonify(center)
-    else:
-        return jsonify({'error': 'Recycling center not found'}), 404
 
+@app.route('/recycling_centers/get_bin_by_id', methods=['POST'])
+def check_address():
+    # Read the data as plain text
+    center_id = request.get_data(as_text=True)
+    print(id)
+
+    if not center_id:
+        return 'No id provided', 400
+
+    object_exists = collection.find_one({"_id": ObjectId(str(center_id))})
+
+    if object_exists:
+        block_number = object_exists['ADDRESSBLOCKHOUSENUMBER']
+        street_name = object_exists['ADDRESSSTREETNAME']
+        address_formatted = f"BLK {block_number} {street_name}"
+        return address_formatted, 200
+    else:
+        return 'Address not found', 404
+    
 if __name__ == '__main__':
     # app.run() will host the server on localhost e.g. http://127.0.0.1:5000, 
     # whereas, app.run(host=”0.0.0.0″) will host the server on machine’s IP address
