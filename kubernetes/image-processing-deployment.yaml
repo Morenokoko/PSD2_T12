@@ -6,14 +6,14 @@ metadata:
     kompose.version: 1.31.2 (a92241f79)
   creationTimestamp: null
   labels:
-    io.kompose.service: user-management
-    app: user-management
-  name: user-management
+    io.kompose.service: image-processing
+    app: image-processing
+  name: image-processing
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: user-management
+      io.kompose.service: image-processing
   strategy:
     type: Recreate
   template:
@@ -23,29 +23,29 @@ spec:
         kompose.version: 1.31.2 (a92241f79)
         prometheus.io/scrape: "true"
         prometheus.io/path: "/metrics"
-        prometheus.io/port: "5000"
+        prometheus.io/port: "5003"
       creationTimestamp: null
       labels:
         io.kompose.network/psd2-t12-default: "true"
-        io.kompose.service: user-management
+        io.kompose.service: image-processing
     spec:
       containers:
         - env:
             - name: FLASK_ENV
               value: development
-          image: mrizqullah/user-management:latest
-          name: user-management
+          image: mrizqullah/image-processing:latest
+          name: image-processing
           ports:
-            - containerPort: 5000
-              hostPort: 5000
+            - containerPort: 5003
+              hostPort: 5003
               protocol: TCP
           resources: {}
           # volumeMounts:
           #   - mountPath: /app
-          #     name: user-management-claim0
+          #     name: image-processing-claim0
       restartPolicy: Always
       # volumes:
-      #   - name: user-management-claim0
+      #   - name: image-processing-claim0
       #     persistentVolumeClaim:
-      #       claimName: user-management-claim0
+      #       claimName: image-processing-claim0
 status: {}

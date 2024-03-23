@@ -6,15 +6,15 @@ metadata:
     kompose.version: 1.31.2 (a92241f79)
   creationTimestamp: null
   labels:
-    io.kompose.service: activity-management
-  name: activity-management
+    io.kompose.service: recycling-center
+  name: recycling-center
 spec:
   type: LoadBalancer
   ports:
-    - name: "5004"
-      port: 5004
-      targetPort: 5004
+    - name: "5002"
+      port: 5002
+      targetPort: 5002
   selector:
-    io.kompose.service: activity-management
+    io.kompose.service: recycling-center
 status:
   loadBalancer: {}

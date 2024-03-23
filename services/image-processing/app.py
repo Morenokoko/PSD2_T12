@@ -3,8 +3,10 @@ from inference_sdk import InferenceHTTPClient
 import werkzeug
 import tempfile
 import os
+from prometheus_flask_exporter import PrometheusMetrics
 
 app = Flask(__name__)
+metrics = PrometheusMetrics(app)
 
 CLIENT = InferenceHTTPClient(
     api_url="https://detect.roboflow.com",

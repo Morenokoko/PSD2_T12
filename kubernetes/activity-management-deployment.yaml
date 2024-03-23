@@ -1,22 +1,51 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  annotations:
+    kompose.cmd: C:\kompose\kompose.exe convert
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: activity-management
+    app: activity-management
   name: activity-management
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: activity-management
+      io.kompose.service: activity-management
+  strategy:
+    type: Recreate
   template:
     metadata:
+      annotations:
+        kompose.cmd: C:\kompose\kompose.exe convert
+        kompose.version: 1.31.2 (a92241f79)
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "5004"
+      creationTimestamp: null
       labels:
-        app: activity-management
+        io.kompose.network/psd2-t12-default: "true"
+        io.kompose.service: activity-management
     spec:
       containers:
-        - name: activity-management
-          image: activity-management:latest
-          ports:
-            - containerPort: 5004
-          env:
+        - env:
             - name: FLASK_ENV
               value: development
+          image: mrizqullah/activity-management:latest
+          name: activity-management
+          ports:
+            - containerPort: 5004
+              hostPort: 5004
+              protocol: TCP
+          resources: {}
+          # volumeMounts:
+          #   - mountPath: /app
+          #     name: activity-management-claim0
+      restartPolicy: Always
+      # volumes:
+      #   - name: activity-management-claim0
+      #     persistentVolumeClaim:
+      #       claimName: activity-management-claim0
+status: {}

@@ -1,5 +1,2 @@
 flask
-beautifulsoup4
-pymongo
-geopy
 prometheus-flask-exporter

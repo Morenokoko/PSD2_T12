@@ -2,8 +2,10 @@
 from flask import Flask, jsonify, request
 from pymongo import MongoClient
 from geopy.distance import geodesic
+from prometheus_flask_exporter import PrometheusMetrics
 
 app = Flask(__name__)
+metrics = PrometheusMetrics(app)
 
 # Assuming you have a MongoClient set up
 client = MongoClient("mongodb+srv://mrizqullahhafizh:bHjDatbWnaVsPnEZ@ecoranger.s4hhqha.mongodb.net/?retryWrites=true&w=majority&appName=EcoRanger")
