@@ -42,9 +42,11 @@ import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
@@ -58,6 +60,11 @@ interface ImageApiService {
     suspend fun inferImage(@Part image: MultipartBody.Part): String
 }
 
+interface ActivityApiService {
+    @POST("/api/activities")
+    @JvmSuppressWildcards
+    suspend fun createActivity(@Body data: Map<String, Any>): ResponseBody
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -71,6 +78,13 @@ fun ResultsPage(navController: NavHostController, context: Context) { // Pass th
         .build()
 
     val imageApiService = retrofit.create(ImageApiService::class.java)
+
+    val retrofit2 = Retrofit.Builder()
+        .baseUrl(MainActivity.ACTIVITY_MANAGEMENT_BASE_URL) // Replace <your_server_ip> with your server's IP address
+        .addConverterFactory(GsonConverterFactory.create(gson))
+        .build()
+
+    val activityApiService = retrofit2.create(ActivityApiService::class.java)
 
     // State to hold the result
     val resultText = remember { mutableStateOf("Results") }
@@ -89,6 +103,24 @@ fun ResultsPage(navController: NavHostController, context: Context) { // Pass th
             try {
                 val result = imageApiService.inferImage(body)
                 resultText.value = result
+                // Make additional API request if the result is not "invalid"
+                if (result != "invalid") {
+                    Log.d("Result", "not invalid")
+                    // Example of data for the new API request
+                    val data = mapOf(
+                        "user_id" to getUserIdFromStorage(context),
+                        "activity_type" to "test_activity",
+                        "points" to 10
+                    )
+                    // Launch coroutine for the additional API request
+                    try {
+                        val response = activityApiService.createActivity(data)
+                        Log.d("ActivityResponse", "Response: $response")
+                    } catch (e: Exception) {
+                        Log.e("ActivityError", "Error creating activity: ${e.message}")
+                    }
+                }else{
+                    Log.d("Result", "invalid")}
             } catch (e: Exception) {
                 resultText.value = "Error: ${e.message}"
             }
