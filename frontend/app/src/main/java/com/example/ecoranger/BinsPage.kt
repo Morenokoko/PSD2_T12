@@ -28,7 +28,6 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.gson.GsonBuilder
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
@@ -38,37 +37,15 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.GET
-import retrofit2.http.Query
 
 private const val REQUEST_LOCATION_PERMISSIONS = 123
 
-interface ApiService {
-    // Define your API endpoints here
-    @GET("recycling_bins_500m")
-//    suspend fun getRecyclingCenters(): List<Bin>
-    suspend fun getRecyclingBins(
-        @Query("lat") lat: Double,
-        @Query("lon") lon: Double
-    ): List<Bin>
-}
-
-fun createApiService(): ApiService {
-    val gson = GsonBuilder().setLenient().create() // Enable lenient parsing
-    val retrofit = Retrofit.Builder()
-        .baseUrl(MainActivity.RECYCLING_CENTER_BASE_URL)
-        .addConverterFactory(GsonConverterFactory.create(gson))
-        .build()
-
-    return retrofit.create(ApiService::class.java)
-}
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun BinsPage(navController: NavHostController, selectedItem: MutableState<Int>) {
     val context = LocalContext.current
+    val apiService = GetRecyclingCenters500mApiService.create(MainActivity.RECYCLING_CENTER_BASE_URL)
     val fusedLocationClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(context)
     val exitDialogShown = remember { mutableStateOf(false) }
@@ -78,7 +55,6 @@ fun BinsPage(navController: NavHostController, selectedItem: MutableState<Int>) 
     }
     val coroutineScope = rememberCoroutineScope()
     var userPosition by remember { mutableStateOf<LatLng?>(null) }
-    val apiService = remember { createApiService() }
     var binsList by remember { mutableStateOf<List<Bin>>(emptyList()) }
 
     // Get user's location and update the camera position

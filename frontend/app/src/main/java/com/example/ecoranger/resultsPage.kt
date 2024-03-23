@@ -34,32 +34,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.google.gson.GsonBuilder
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.ResponseBody
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.Body
-import retrofit2.http.Multipart
-import retrofit2.http.POST
-import retrofit2.http.Part
 import java.io.File
 
-
-interface ImageApiService {
-    @Multipart
-    @POST("/infer")
-    suspend fun inferImage(@Part image: MultipartBody.Part): String
-}
-
-interface ActivityApiService {
-    @POST("/api/activities")
-    @JvmSuppressWildcards
-    suspend fun createActivity(@Body data: Map<String, Any>): ResponseBody
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -67,22 +47,9 @@ interface ActivityApiService {
 fun ResultsPage(
     navController: NavHostController, context: Context,
     cameraAddress: MutableState<String>
-) { // Pass the Context as a parameter
-    // Set up Retrofit
-    val gson = GsonBuilder().create()
-    val retrofit = Retrofit.Builder()
-        .baseUrl(MainActivity.IMAGE_PROCESSING_BASE_URL) // Replace <your_server_ip> with your server's IP address
-        .addConverterFactory(GsonConverterFactory.create(gson))
-        .build()
-
-    val imageApiService = retrofit.create(ImageApiService::class.java)
-
-    val retrofit2 = Retrofit.Builder()
-        .baseUrl(MainActivity.ACTIVITY_MANAGEMENT_BASE_URL) // Replace <your_server_ip> with your server's IP address
-        .addConverterFactory(GsonConverterFactory.create(gson))
-        .build()
-
-    val activityApiService = retrofit2.create(ActivityApiService::class.java)
+) {
+    val createActivityApiService = CreateActivityApiService.create(MainActivity.ACTIVITY_MANAGEMENT_BASE_URL)
+    val imageApiService = ImageApiService.create(MainActivity.IMAGE_PROCESSING_BASE_URL)
 
     val resultText = remember { mutableStateOf("") }
     val isLoading = remember { mutableStateOf(true) }
@@ -112,7 +79,7 @@ fun ResultsPage(
                     )
                     // Launch coroutine for the additional API request
                     try {
-                        val response = activityApiService.createActivity(data)
+                        val response = createActivityApiService.createActivity(data)
                         Log.d("ActivityResponse", "Response: $response")
                     } catch (e: Exception) {
                         Log.e("ActivityError", "Error creating activity: ${e.message}")

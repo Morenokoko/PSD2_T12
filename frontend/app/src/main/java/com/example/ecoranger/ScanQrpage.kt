@@ -56,23 +56,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.ResponseBody
-import retrofit2.Converter
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.Body
-import retrofit2.http.Headers
-import retrofit2.http.POST
-import java.lang.reflect.Type
 
-interface RecyclingCenterApiService {
-    @Headers("Content-Type: text/plain")
-    @POST("/recycling_centers/get_bin_by_id")
-    suspend fun getRecyclingCenter(@Body address: RequestBody): Response<String>
-}
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -117,8 +102,6 @@ fun QrCameraPreview(
     navController: NavHostController,
     cameraAddress: MutableState<String>
 ) {
-//    val activity = (LocalContext.current as? Activity)
-//    val camera = remember { mutableStateOf<Camera?>(null) }
     val hasDeniedTwice = remember { mutableStateOf(false) }
     val hasCameraPermission: PermissionState = rememberPermissionState(Manifest.permission.CAMERA)
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -146,20 +129,6 @@ private fun NavigateToAppSettings() {
     LocalContext.current.startActivity(intent)
 }
 
-class ToStringConverterFactory : Converter.Factory() {
-    override fun responseBodyConverter(
-        type: Type,
-        annotations: Array<Annotation>,
-        retrofit: Retrofit
-    ): Converter<ResponseBody, *>? {
-        // Check if the expected response type is a String, return a converter if so
-        if (String::class.java == type) {
-            return Converter<ResponseBody, String> { responseBody -> responseBody.string() }
-        }
-        // Return null to continue searching for other converters if the type is not String
-        return null
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -167,14 +136,7 @@ private fun CameraContent(navController: NavHostController, cameraAddress: Mutab
 
     var lastApiCallTime = 0L  // Initialize to 0
 
-    // Set up Retrofit
-    val retrofit = Retrofit.Builder()
-        .baseUrl(MainActivity.RECYCLING_CENTER_BASE_URL) // Replace <your_server_ip> with your server's IP address
-        .addConverterFactory(ToStringConverterFactory())
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-
-    val qrApiService = retrofit.create(RecyclingCenterApiService::class.java)
+    val recyclingCenterApiService = GetRecyclingCenterApiService.create(MainActivity.RECYCLING_CENTER_BASE_URL)
 
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -251,7 +213,7 @@ private fun CameraContent(navController: NavHostController, cameraAddress: Mutab
 
                                     // Proceed with your API call here
                                     CoroutineScope(Dispatchers.IO).launch {
-                                        val response = qrApiService.getRecyclingCenter(requestBody)
+                                        val response = recyclingCenterApiService.getRecyclingCenter(requestBody)
                                         Log.d("response", "rrr: $response")
                                         if (response.isSuccessful && response.body() != null) {
                                             cameraAddress.value = response.body()!!
