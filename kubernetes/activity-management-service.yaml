@@ -15,6 +15,6 @@ spec:
       port: 5004
       targetPort: 5004
   selector:
-    io.kompose.service: activity-management
+    app: activity-management
 status:
   loadBalancer: {}
