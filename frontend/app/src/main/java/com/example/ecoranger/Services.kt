@@ -1,5 +1,6 @@
 package com.example.ecoranger
 
+import com.example.ecoranger.data.Activity
 import com.example.ecoranger.data.Bin
 import com.google.gson.GsonBuilder
 import okhttp3.MultipartBody
@@ -41,7 +42,7 @@ interface CreateActivityApiService {
 interface GetUserActivityApiService {
     @POST("/api/activities/get_activity_by_userid")
     @JvmSuppressWildcards
-    suspend fun getUserActivity(@Body data: Map<String, Any>): ResponseBody
+    suspend fun getUserActivity(@Body data: RequestBody): List<Activity>
 
     companion object {
         fun create(baseUrl: String): GetUserActivityApiService {
