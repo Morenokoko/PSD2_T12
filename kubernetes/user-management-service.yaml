@@ -15,6 +15,6 @@ spec:
       port: 5000
       targetPort: 5000
   selector:
-    app: user-management
+    io.kompose.service: user-management
 status:
   loadBalancer: {}

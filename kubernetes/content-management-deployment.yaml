@@ -6,13 +6,14 @@ metadata:
     kompose.version: 1.31.2 (a92241f79)
   creationTimestamp: null
   labels:
+    io.kompose.service: content-management
     app: content-management
   name: content-management
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: content-management
+      io.kompose.service: content-management
   strategy:
     type: Recreate
   template:
@@ -26,7 +27,7 @@ spec:
       creationTimestamp: null
       labels:
         io.kompose.network/psd2-t12-default: "true"
-        app: content-management
+        io.kompose.service: content-management
     spec:
       containers:
         - env:

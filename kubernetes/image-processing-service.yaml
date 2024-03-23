@@ -15,6 +15,6 @@ spec:
       port: 5003
       targetPort: 5003
   selector:
-    app: image-processing
+    io.kompose.service: image-processing
 status:
   loadBalancer: {}
