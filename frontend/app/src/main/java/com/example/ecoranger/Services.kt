@@ -2,6 +2,7 @@ package com.example.ecoranger
 
 import com.example.ecoranger.data.Activity
 import com.example.ecoranger.data.Bin
+import com.example.ecoranger.data.CommunityPost
 import com.google.gson.GsonBuilder
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -11,11 +12,14 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Part
+import retrofit2.http.Path
 import retrofit2.http.Query
 import java.lang.reflect.Type
 
@@ -126,6 +130,84 @@ interface ImageApiService {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
             return retrofit.create(ImageApiService::class.java)
+        }
+    }
+}
+
+
+
+///////////////////////////////////////////////
+///////////////COMMUNITY POSTS/////////////////
+///////////////////////////////////////////////
+interface CreatePostApiService {
+    @POST("/api/create_community_post")
+    @JvmSuppressWildcards
+    suspend fun createPost(@Body data: Map<String, Any>): ResponseBody
+
+    companion object {
+        fun create(baseUrl: String): CreatePostApiService {
+            val retrofit = Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+            return retrofit.create(CreatePostApiService::class.java)
+        }
+    }
+}
+interface GetCommPostApiService {
+    @GET("/api/community")
+    suspend fun getCommPosts(): List<CommunityPost>
+
+    companion object {
+        fun create(baseUrl: String): GetCommPostApiService {
+            val retrofit = Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+            return retrofit.create(GetCommPostApiService::class.java)
+        }
+    }
+}
+interface GetPostByIdApiService {
+    @GET("/api/community/{postId}")
+    suspend fun getCommPost(@Path("postId") postId: String): CommunityPost
+
+    companion object {
+        fun create(baseUrl: String): GetPostByIdApiService {
+            val retrofit = Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+            return retrofit.create(GetPostByIdApiService::class.java)
+        }
+    }
+}
+interface UpdatePostApiService {
+    @PUT("/api/community/{postId}")
+    suspend fun updatePost(@Path("postId") postId: String, @Body data: Map<String, Any>): ResponseBody
+
+    companion object {
+        fun create(baseUrl: String): UpdatePostApiService {
+            val retrofit = Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+            return retrofit.create(UpdatePostApiService::class.java)
+        }
+    }
+}
+
+interface DeletePostApiService {
+    @DELETE("/api/community/{postId}")
+    suspend fun deletePost(@Path("postId") postId: String): ResponseBody
+
+    companion object {
+        fun create(baseUrl: String): DeletePostApiService {
+            val retrofit = Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+            return retrofit.create(DeletePostApiService::class.java)
         }
     }
 }
