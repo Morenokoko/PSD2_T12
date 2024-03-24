@@ -3,6 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from pymongo import MongoClient
 from bson import ObjectId
 import flask_profiler
+import flask_monitoringdashboard as dashboard
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
@@ -159,6 +160,8 @@ def delete_user(user_id):
 # app as an argument to flask-profiler.
 # All the endpoints declared so far will be tracked by flask-profiler.
 flask_profiler.init_app(app)
+
+dashboard.bind(app)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

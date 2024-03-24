@@ -2,3 +2,4 @@ flask
 werkzeug
 pymongo
 flask_profiler
+flask_monitoringdashboard

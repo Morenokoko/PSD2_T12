@@ -3,6 +3,7 @@ from pymongo import MongoClient, DESCENDING
 from bson import json_util, ObjectId
 from datetime import datetime
 import flask_profiler
+import flask_monitoringdashboard as dashboard
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
@@ -104,6 +105,8 @@ def get_user_activities():
 # app as an argument to flask-profiler.
 # All the endpoints declared so far will be tracked by flask-profiler.
 flask_profiler.init_app(app)
+
+dashboard.bind(app)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5004)

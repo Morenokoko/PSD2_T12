@@ -4,6 +4,7 @@ from pymongo import MongoClient
 from geopy.distance import geodesic
 from bson import ObjectId
 import flask_profiler
+import flask_monitoringdashboard as dashboard
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
@@ -82,6 +83,8 @@ def check_address():
 # app as an argument to flask-profiler.
 # All the endpoints declared so far will be tracked by flask-profiler.
 flask_profiler.init_app(app)
+
+dashboard.bind(app)
     
 if __name__ == '__main__':
     # app.run() will host the server on localhost e.g. http://127.0.0.1:5000, 

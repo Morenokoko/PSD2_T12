@@ -2,3 +2,4 @@ Flask
 inference_sdk
 werkzeug
 flask_profiler
+flask_monitoringdashboard

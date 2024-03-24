@@ -3,4 +3,5 @@ venv
 /__pycache__/
 .idea/
 *.log
-*.sql
+flask_profiler.sql
+flask_monitoringdashboard.db
