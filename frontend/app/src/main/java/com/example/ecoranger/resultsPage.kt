@@ -75,7 +75,7 @@ fun ResultsPage(
                     val data = mapOf(
                         "user_id" to getUserIdFromStorage(context),
                         "activity_type" to cameraAddress.value,
-                        "points" to 50
+                        "points" to 10
                     )
                     // Launch coroutine for the additional API request
                     try {
@@ -151,7 +151,7 @@ fun ResultsPage(
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = if (resultText.value != "invalid") {
-                            "You have earned 50 points"
+                            "You have earned 10 points"
                         } else {
                             "Please try again"
                         },

@@ -135,7 +135,7 @@ fun ProfilePage(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
-                    painter = painterResource(R.drawable.clothes),
+                    painter = painterResource(R.drawable.frog),
                     contentDescription = "avatar",
                     contentScale = ContentScale.Crop,            // crop the image if it's not a square
                     modifier = Modifier

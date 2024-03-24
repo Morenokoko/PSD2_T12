@@ -1,19 +1,24 @@
 package com.example.ecoranger
 
 import android.annotation.SuppressLint
+import android.text.format.DateUtils.formatDateTime
 import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -73,14 +78,6 @@ fun ViewCommPage(navController: NavHostController, postId: String?) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-//                actions = {
-//                    Button(
-//                        onClick = { },
-//                        modifier = Modifier.padding(end = 12.dp)
-//                    ) {
-//                        Text("Edit")
-//                    }
-//                }
             )
         },
         content = { paddingValues: PaddingValues ->
@@ -89,20 +86,38 @@ fun ViewCommPage(navController: NavHostController, postId: String?) {
                     .fillMaxSize()
                     .padding(paddingValues)
                     .padding(16.dp, 4.dp, 16.dp, 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+//                horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // Title
                 Text(
-                    text = "Title: ${data.title}" // Display title
+                    text = "${data.title}",
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.padding(vertical = 8.dp)
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+
+                // Description
                 Text(
-                    text = "Description: ${data.description}" // Display description
+                    text = "${data.description}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(vertical = 8.dp)
                 )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "Username: ${data.username}" // Display username
-                )
-                // You can add more Text composable elements to display other data fields
+
+                // Username and datetime
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Posted by ${data.username}",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = data.dateTime,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
             }
         }
     )
