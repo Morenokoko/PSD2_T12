@@ -67,6 +67,7 @@ fun HomePage(navController: NavHostController, context: Context, selectedItem: M
     val userApiService = GetUserApiService.create(MainActivity.USER_MANAGEMENT_BASE_URL)
     val coroutineScope = rememberCoroutineScope()
     var activityList by remember { mutableStateOf<List<Activity>>(emptyList()) }
+    var userName by remember { mutableStateOf("") }
     var userPoints by remember { mutableStateOf(0) }
     var isLoading by remember { mutableStateOf(true) }
 
@@ -75,6 +76,7 @@ fun HomePage(navController: NavHostController, context: Context, selectedItem: M
             try {
                 val response = userApiService.getUser(getUserIdFromStorage(context))
                 withContext(Dispatchers.Main) {
+                    userName = response.username
                     userPoints = response.points
                     Log.d("API_SUCCESS", "User points retrieved successfully: $userPoints")
                 }
@@ -127,7 +129,7 @@ fun HomePage(navController: NavHostController, context: Context, selectedItem: M
                     Column {
                         Text("Welcome back")
                         Text(
-                            text = "John Cena", style = TextStyle(
+                            text = userName, style = TextStyle(
                                 fontSize = 20.sp, fontWeight = FontWeight.Bold
                             )
                         )

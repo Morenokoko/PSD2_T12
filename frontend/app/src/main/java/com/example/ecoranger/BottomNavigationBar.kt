@@ -6,11 +6,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Recycling
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
@@ -38,7 +40,7 @@ fun BottomNavigationBar(
 ) {
 
     var selectedItem by remember { selectedItem }
-    val items = listOf("Home", "Bins", "Recycle", "Community", "Profile")
+    val items = listOf("Home", "Bins", "Recycle", "Community", "Settings")
     NavigationBar(
         containerColor = Color(0xFF254d32)
     ) {
@@ -49,9 +51,9 @@ fun BottomNavigationBar(
                         imageVector = when (index) {
                             0 -> Icons.Filled.Home
                             1 -> Icons.Filled.LocationOn
-                            2 -> Icons.Filled.Add
-                            3 -> Icons.Filled.Favorite
-                            4 -> Icons.Filled.Person
+                            2 -> Icons.Filled.Recycling
+                            3 -> Icons.Filled.Groups
+                            4 -> Icons.Filled.Settings
                             else -> Icons.Filled.Home
                         },
                         contentDescription = item,
