@@ -3,6 +3,7 @@ package com.example.ecoranger
 import com.example.ecoranger.data.Activity
 import com.example.ecoranger.data.Bin
 import com.example.ecoranger.data.CommunityPost
+import com.example.ecoranger.data.User
 import com.google.gson.GsonBuilder
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -23,6 +24,38 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 import java.lang.reflect.Type
 
+
+///////////////////////////////////////////////
+/////////////////////USER//////////////////////
+///////////////////////////////////////////////
+interface GetUserApiService {
+    @GET("/api/users/{userId}")
+    suspend fun getUser(@Path("userId") userId: String): User
+
+    companion object {
+        fun create(baseUrl: String): GetUserApiService {
+            val retrofit = Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+            return retrofit.create(GetUserApiService::class.java)
+        }
+    }
+}
+interface UpdateUserPointsApiService {
+    @PUT("/api/users/{userId}/points}")
+    suspend fun updatePoints(@Path("userId") userId: String, @Body data: Map<String, Any>): ResponseBody
+
+    companion object {
+        fun create(baseUrl: String): UpdateUserPointsApiService {
+            val retrofit = Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+            return retrofit.create(UpdateUserPointsApiService::class.java)
+        }
+    }
+}
 
 ///////////////////////////////////////////////
 ///////////////////ACTIVITY////////////////////
