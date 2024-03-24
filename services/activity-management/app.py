@@ -29,8 +29,8 @@ app.config["flask_profiler"] = {
 client = MongoClient('mongodb+srv://mrizqullahhafizh:bHjDatbWnaVsPnEZ@ecoranger.s4hhqha.mongodb.net/?retryWrites=true&w=majority&appName=EcoRanger')
 db = client['activity-management']
 activities_collection = db['activities']
-userdb = client['user-management']
-user_collection = db['users']
+db = client['user-management']
+users_collection = db['users']
 
 @app.route('/api/activities', methods=['POST'])
 def create_activity():
@@ -48,10 +48,13 @@ def create_activity():
     result = activities_collection.insert_one(activity)
     activity_id = str(result.inserted_id)
     
+    # Find the user by ID
+    user = users_collection.find_one({'_id': ObjectId(user_id)})
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+
     # Update user's points
-    update_result = user_collection.update_one({'_id': ObjectId(user_id)}, {'$inc': {'points': points}})
-    
-    print("Update Result:", update_result.raw_result)  # Debug print
+    update_result = users_collection.update_one({'_id': ObjectId(user_id)}, {'$inc': {'points': points}})
     
     if update_result.modified_count != 1:
         return jsonify({'error': 'Failed to update user points'}), 500
