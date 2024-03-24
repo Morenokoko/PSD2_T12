@@ -63,17 +63,29 @@ import okhttp3.RequestBody.Companion.toRequestBody
 @Composable
 fun HomePage(navController: NavHostController, context: Context, selectedItem: MutableState<Int>) {
     val exitDialogShown = remember { mutableStateOf(false) }
-    val apiService = GetUserActivityApiService.create(MainActivity.ACTIVITY_MANAGEMENT_BASE_URL)
+    val activityApiService = GetUserActivityApiService.create(MainActivity.ACTIVITY_MANAGEMENT_BASE_URL)
+    val userApiService = GetUserApiService.create(MainActivity.USER_MANAGEMENT_BASE_URL)
     val coroutineScope = rememberCoroutineScope()
     var activityList by remember { mutableStateOf<List<Activity>>(emptyList()) }
+    var userPoints by remember { mutableStateOf(0) }
     var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
         coroutineScope.launch {
             try {
+                val response = userApiService.getUser(getUserIdFromStorage(context))
+                withContext(Dispatchers.Main) {
+                    userPoints = response.points
+                    Log.d("API_SUCCESS", "User points retrieved successfully: $userPoints")
+                }
+            } catch (e: Exception) {
+                // Handle errors
+                Log.e("API_ERROR", "Error fetching user points: ${e.message}", e)
+            }
+            try {
                 val requestBody = getUserIdFromStorage(context).toRequestBody("text/plain".toMediaType())
                 val response =
-                    apiService.getUserActivity(requestBody)
+                    activityApiService.getUserActivity(requestBody)
                 withContext(Dispatchers.Main) {
                     activityList = response
                     isLoading = false
@@ -136,7 +148,7 @@ fun HomePage(navController: NavHostController, context: Context, selectedItem: M
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
                         ) {
                             Text(
-                                text = "9000", textAlign = TextAlign.Center, style = TextStyle(
+                                text = userPoints.toString(), textAlign = TextAlign.Center, style = TextStyle(
                                     fontSize = 18.sp, fontWeight = FontWeight.Bold
                                 )
                             )

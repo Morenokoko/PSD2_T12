@@ -29,6 +29,7 @@ client = MongoClient('mongodb+srv://mrizqullahhafizh:bHjDatbWnaVsPnEZ@ecoranger.
 db = client['user-management']
 users_collection = db['users']
 
+# GET ALL USERS
 @app.route('/api/users', methods=['GET'])
 def get_users():
     users = list(users_collection.find({}, {'password': 0}))  # Exclude password field
@@ -36,6 +37,7 @@ def get_users():
         user['_id'] = str(user['_id'])  # Convert ObjectId to string
     return jsonify(users), 200
 
+# GET SPECIFIC USER
 @app.route('/api/users/<user_id>', methods=['GET'])
 def get_user(user_id):
     user = users_collection.find_one({'_id': ObjectId(user_id)}, {'password': 0})
@@ -45,6 +47,7 @@ def get_user(user_id):
     else:
         return jsonify({'message': 'User not found'}), 404
 
+# REGISTER USER
 @app.route('/api/users/register', methods=['POST'])
 def register_user():
     data = request.get_json()
@@ -59,12 +62,13 @@ def register_user():
 
     # Create a new user
     hashed_password = generate_password_hash(password)
-    user = {'username': username, 'email': email, 'password': hashed_password}
+    user = {'username': username, 'email': email, 'password': hashed_password, 'points': 0}
     result = users_collection.insert_one(user)
     user_id = str(result.inserted_id)
 
     return jsonify({'message': 'User registered successfully', 'user_id': user_id}), 201
 
+# LOGIN USER
 @app.route('/api/users/login', methods=['POST'])
 def login_user():
     data = request.get_json()
@@ -80,12 +84,16 @@ def login_user():
     else:
         return jsonify({'message': 'Invalid username or password'}), 401
 
+
+# LOGOUT USER
 @app.route('/api/users/logout', methods=['POST'])
 def logout_user():
     # Invalidate the user's session or token
     # ...
     return jsonify({'message': 'Logged out successfully'}), 200
 
+
+# GET USER PROFILE BY CHECKING WHO IS LOGGEDIN
 @app.route('/api/users/profile', methods=['GET'])
 def get_user_profile():
     user_id = request.headers.get('Authorization')  # Assuming user_id is passed in the Authorization header
@@ -96,6 +104,25 @@ def get_user_profile():
     else:
         return jsonify({'message': 'User not found'}), 404
 
+
+# UPDATE USER POINTS
+@app.route('/api/users/<user_id>/points', methods=['PUT'])
+def update_user_points(user_id):
+    data = request.get_json()
+    points = data.get('points')
+
+    # Find the user by ID
+    user = users_collection.find_one({'_id': ObjectId(user_id)})
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+
+    # Update the user's points
+    users_collection.update_one({'_id': ObjectId(user_id)}, {'$set': {'points': points}})
+
+    return jsonify({'message': 'User points updated successfully'}), 200
+
+
+# UPDATE USER DETAILS
 @app.route('/api/users/<user_id>', methods=['PUT'])
 def update_user(user_id):
     data = request.get_json()
@@ -118,6 +145,8 @@ def update_user(user_id):
 
     return jsonify({'message': 'User updated successfully'}), 200
 
+
+# DELETE USER
 @app.route('/api/users/<user_id>', methods=['DELETE'])
 def delete_user(user_id):
     result = users_collection.delete_one({'_id': ObjectId(user_id)})
