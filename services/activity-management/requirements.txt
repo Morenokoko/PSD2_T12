@@ -1,4 +1,4 @@
 flask
 werkzeug
 pymongo
-prometheus-flask-exporter
+flask_profiler
