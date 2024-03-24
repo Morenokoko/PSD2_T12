@@ -40,7 +40,7 @@ fun BottomNavigationBar(
 ) {
 
     var selectedItem by remember { selectedItem }
-    val items = listOf("Home", "Bins", "Recycle", "Community", "Settings")
+    val items = listOf("Home", "Bins", "Recycle", "Groups", "Settings")
     NavigationBar(
         containerColor = Color(0xFF254d32)
     ) {
