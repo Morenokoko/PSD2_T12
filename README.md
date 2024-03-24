@@ -2,24 +2,41 @@
 
 EcoRanger App: Sustainable Waste Management
 
+## Pre-requisites
+
+- Docker/Kubernetes - We use docker-desktop and its k8s engine
+- Android Studio
+
 ## Getting Started
 
 ### Setting up the Kotlin Frontend
 
-Follow [this guide](https://developers.google.com/maps/documentation/android-sdk/get-api-key) to obtain an API key. </br>
-If you wish to restrict your api key, you may find the package name and SHA-1 using these steps:
+Follow [this guide](https://developers.google.com/maps/documentation/android-sdk/get-api-key) to obtain an API key.
 
-- Package name: com.example.ecoranger
-- SHA-1: Open android directory in to the terminal then enter the `./gradlew signingReport` command.
+Lastly, in your `AndroidManifest.xml` file of your android project root folder, add your api key here: `android:value=""`.
 
-Lastly, in your `local.properties` file of your android project root folder, add your api key like so: `GOOGLE_MAPS_API_KEY=YOUR_API_KEY`.</br>
+```
+<meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="" />
+```
+
 Your project should then be able to run smoothly.
 
 ## Quickstart
 
-```
-docker-compose up --build
-```
+1. Run the commands below to start the backend microservices containers/pods
+
+   ```bash
+   # Option 1: docker-compose
+   docker-compose up --build
+
+   # Option 2: kubernetes
+   kubectl apply -f ./kubernetes # Deploy k8s manifests
+   kubectl delete -f ./kubernetes # Undeploy k8s manifests
+   ```
+
+2. Open the ./frontend folder in android studio and run the app. This repo is configured to run on the android emulator, if you want to run it on a physical android device, change the SERVER_IP public constant in MainActivity.kt.
 
 ## Port Config
 
@@ -41,25 +58,21 @@ LocalRecyclingGuideApp/
 │
 ├── services/                  # Backend microservices
 │   ├── user-management/       # User Management Service
-│   │   ├── src/               # Source code for the service
 │   │   ├── Dockerfile         # Dockerfile for containerization
 │   │   ├── package.json       # Node.js dependencies
 │   │   └── ...
 │   │
 │   ├── recycling-center/      # Recycling Center Management Service
-│   │   ├── src/               # Source code for the service
 │   │   ├── Dockerfile         # Dockerfile for containerization
 │   │   ├── requirements.txt   # Python dependencies
 │   │   └── ...
 │   │
 │   ├── content-management/    # Content Management Service
-│   │   ├── src/               # Source code for the service
 │   │   ├── Dockerfile         # Dockerfile for containerization
 │   │   ├── pom.xml            # Maven dependencies for Java
 │   │   └── ...
 │   │
 │   └── image-processing/      # Image Processing Service
-│       ├── src/               # Source code for the service
 │       ├── Dockerfile         # Dockerfile for containerization
 │       ├── requirements.txt   # Python dependencies
 │       └── ...
@@ -67,11 +80,6 @@ LocalRecyclingGuideApp/
 ├── kubernetes/                # Kubernetes configuration files
 │   ├── deployment.yaml        # Deployment configurations
 │   ├── service.yaml           # Service configurations
-│   └── ...
-│
-├── .github/workflows/         # CI/CD pipeline configuration
-│   ├── android.yml            # Workflow for the Android app
-│   ├── services.yml           # Workflow for the services
 │   └── ...
 │
 └── README.md                  # Project documentation
