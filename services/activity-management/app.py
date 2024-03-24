@@ -2,10 +2,28 @@ from flask import Flask, request, jsonify
 from pymongo import MongoClient, DESCENDING
 from bson import json_util, ObjectId
 from datetime import datetime
-from prometheus_flask_exporter import PrometheusMetrics
+import flask_profiler
 
 app = Flask(__name__)
-metrics = PrometheusMetrics(app)
+app.config["DEBUG"] = True
+
+# You need to declare necessary configuration to initialize
+# flask-profiler as follows:
+app.config["flask_profiler"] = {
+    "enabled": app.config["DEBUG"],
+    "storage": {
+        "engine": "sqlite"
+    },
+    "basicAuth":{
+        "enabled": True,
+        "username": "admin",
+        "password": "admin"
+    },
+    "ignore": [
+	    "^/static/.*"
+	]
+}
+
 
 # MongoDB Atlas connection
 client = MongoClient('mongodb+srv://mrizqullahhafizh:bHjDatbWnaVsPnEZ@ecoranger.s4hhqha.mongodb.net/?retryWrites=true&w=majority&appName=EcoRanger')
@@ -77,6 +95,12 @@ def get_user_activities():
         return json_util.dumps(activity_list), 200
     else:
         return 'No activities found for the given user_id', 404
+
+
+# In order to active flask-profiler, you have to pass flask
+# app as an argument to flask-profiler.
+# All the endpoints declared so far will be tracked by flask-profiler.
+flask_profiler.init_app(app)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5004)

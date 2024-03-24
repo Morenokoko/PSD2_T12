@@ -1,4 +1,4 @@
 Flask
 inference_sdk
 werkzeug
-prometheus-flask-exporter
+flask_profiler
