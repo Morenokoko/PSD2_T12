@@ -2,4 +2,4 @@ flask
 beautifulsoup4
 pymongo
 geopy
-flask_profiler
+flask_monitoringdashboard

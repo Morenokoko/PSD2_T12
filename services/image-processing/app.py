@@ -3,27 +3,10 @@ from inference_sdk import InferenceHTTPClient
 import werkzeug
 import tempfile
 import os
-import flask_profiler
+import flask_monitoringdashboard as dashboard
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
-
-# You need to declare necessary configuration to initialize
-# flask-profiler as follows:
-app.config["flask_profiler"] = {
-    "enabled": app.config["DEBUG"],
-    "storage": {
-        "engine": "sqlite"
-    },
-    "basicAuth":{
-        "enabled": True,
-        "username": "admin",
-        "password": "admin"
-    },
-    "ignore": [
-	    "^/static/.*"
-	]
-}
 
 CLIENT = InferenceHTTPClient(
     api_url="https://detect.roboflow.com",
@@ -56,11 +39,8 @@ def infer_image():
             return jsonify(', '.join(high_confidence_classes))
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-    
-# In order to active flask-profiler, you have to pass flask
-# app as an argument to flask-profiler.
-# All the endpoints declared so far will be tracked by flask-profiler.
-flask_profiler.init_app(app)
+
+dashboard.bind(app)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5003)
