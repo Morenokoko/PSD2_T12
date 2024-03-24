@@ -2,10 +2,28 @@ from flask import Flask, request, jsonify
 from bson import ObjectId, json_util
 from pymongo import MongoClient, DESCENDING
 from datetime import datetime
+import flask_profiler
 import flask_monitoringdashboard as dashboard
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
+
+# You need to declare necessary configuration to initialize
+# flask-profiler as follows:
+app.config["flask_profiler"] = {
+    "enabled": app.config["DEBUG"],
+    "storage": {
+        "engine": "sqlite"
+    },
+    "basicAuth":{
+        "enabled": True,
+        "username": "admin",
+        "password": "admin"
+    },
+    "ignore": [
+	    "^/static/.*"
+	]
+}
 
 # MongoDB Atlas connection
 client = MongoClient('mongodb+srv://mrizqullahhafizh:bHjDatbWnaVsPnEZ@ecoranger.s4hhqha.mongodb.net/?retryWrites=true&w=majority&appName=EcoRanger')
@@ -156,6 +174,11 @@ def list_news():
         if content:
             news_list.append({"id": news_id, "content": content})
     return jsonify(news_list)
+
+# In order to active flask-profiler, you have to pass flask
+# app as an argument to flask-profiler.
+# All the endpoints declared so far will be tracked by flask-profiler.
+flask_profiler.init_app(app)
 
 dashboard.bind(app)
 

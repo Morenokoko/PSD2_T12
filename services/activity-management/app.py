@@ -2,10 +2,28 @@ from flask import Flask, request, jsonify
 from pymongo import MongoClient, DESCENDING
 from bson import json_util, ObjectId
 from datetime import datetime
+import flask_profiler
 import flask_monitoringdashboard as dashboard
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
+
+# You need to declare necessary configuration to initialize
+# flask-profiler as follows:
+app.config["flask_profiler"] = {
+    "enabled": app.config["DEBUG"],
+    "storage": {
+        "engine": "sqlite"
+    },
+    "basicAuth":{
+        "enabled": True,
+        "username": "admin",
+        "password": "admin"
+    },
+    "ignore": [
+	    "^/static/.*"
+	]
+}
 
 
 # MongoDB Atlas connection
@@ -81,6 +99,12 @@ def get_user_activities():
         return json_util.dumps(activity_list), 200
     else:
         return 'No activities found for the given user_id', 404
+
+
+# In order to active flask-profiler, you have to pass flask
+# app as an argument to flask-profiler.
+# All the endpoints declared so far will be tracked by flask-profiler.
+flask_profiler.init_app(app)
 
 dashboard.bind(app)
 
